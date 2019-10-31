@@ -12,18 +12,18 @@ void Main(void){
 	DWORD dwEAX, dwEBX, dwECX, dwEDX;
 	char vcVendorString[13] = {0, };
 
-	kPrintString(0,5,"Protected Mode C Language Kernel Started~!!!...............[Pass]");
-	kPrintString(0,6,"Minimum Memory Size Check...............[    ]");
+	kPrintString(0,5,"Protected Mode C Language Kernel Started....[Pass]");
+	kPrintString(0,6,"Minimum Memory Size Check...................[    ]");
 
 	if(kIsMemoryEnough() == FALSE)
 	{
-		kPrintString(41,6,"Fail");
+		kPrintString(45,6,"Fail");
 		kPrintString(0,7,"Not Enough Memory~!! MINT64 OS Requires Over ""64Mbyte Memory~!!");
 		while(1);
 	}
 	else
 	{
-		kPrintString(41,6,"Pass");
+		kPrintString(45,6,"Pass");
 	}
 
 	kPrintString(0,7,"IA-32e Kernel Area Initialize...............[    ]");
@@ -44,22 +44,22 @@ void Main(void){
 	*(DWORD*) vcVendorString = dwEBX;
 	*((DWORD*)vcVendorString + 1) = dwEDX;
 	*((DWORD*)vcVendorString + 2) = dwECX;
-	kPrintString(0,9,"Processor Vendor String...............[               ]");
-	kPrintString(40,9,vcVendorString);
+	kPrintString(0,9,"Processor Vendor String.....................[            ]");
+	kPrintString(45,9,vcVendorString);
 
 	kReadCPUID(0x80000001, &dwEAX, &dwEBX, &dwECX, &dwEDX);
-	kPrintString(0,10,"64bit Mode Support Check...............[    ]");
+	kPrintString(0,10,"64bit Mode Support Check....................[    ]");
 	if(dwEDX & (1 << 29))
-		kPrintString(40,10,"Pass");
+		kPrintString(45,10,"Pass");
 	else
 	{
-		kPrintString(40,10,"Fail");
+		kPrintString(45,10,"Fail");
 		kPrintString(0,11,"This Processor does not support 64bit mode~!!");
 		while(1);
 	}
-	kPrintString(0,11,"Copy IA-32e Kernel To 2M Address...............[    ]");
+	kPrintString(0,11,"Copy IA-32e Kernel To 2M Address............[    ]");
 	kCopyKernel64ImageTo2Mbyte();
-	kPrintString(48,11,"Pass");
+	kPrintString(45,11,"Pass");
 
 	kPrintString(0,12,"Switch To IA-32e Mode");
 	kSwitchAndExecute64bitKernel();
