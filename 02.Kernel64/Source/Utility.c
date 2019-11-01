@@ -76,6 +76,26 @@ int kStrLen( const char* pcBuffer )
     return i;
 }
 
+//Add StrnCmp Function
+int kStrnCmp(const char * pcBuffer, const char * cmpBuffer, int length)
+{
+    int i = 0;
+    for(i = 0; i < length - 1; i++)
+    {
+        if(pcBuffer[i] != cmpBuffer[i])
+            break;
+        if(pcBuffer[i] == NULL)
+            break;
+
+    }
+    if(pcBuffer[i] == cmpBuffer[i])
+        return 1;
+    else if(*pcBuffer > *cmpBuffer)
+        return 0;
+    else
+        return -1;
+}
+
 static gs_qwTotalRAMMBSize = 0;
 
 void kCheckTotalRAMSize( void )

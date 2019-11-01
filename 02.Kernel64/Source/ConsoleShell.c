@@ -10,6 +10,8 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         { "totalram", "Show Total RAM Size", kShowTotalRAMSize },
         { "strtod", "String To Decial/Hex Convert", kStringToDecimalHexTest },
         { "shutdown", "Shutdown And Reboot OS", kShutdown },
+		{ "hellow", "Welcome OS", kHellow }, //Dummy
+		{ "student", "We are student", kStudent }, //Dummy
 };                                     
 
 void kStartConsoleShell( void )
@@ -18,12 +20,15 @@ void kStartConsoleShell( void )
     int iCommandBufferIndex = 0;
     BYTE bKey;
     int iCursorX, iCursorY;
-    
+	int iCount = sizeof(gs_vstCommandTable) / sizeof(SHELLCOMMANDENTRY);
+    int tabNum = 0;
+
     kPrintf( CONSOLESHELL_PROMPTMESSAGE );
     
     while( 1 )
     {
         bKey = kGetCh();
+
         if( bKey == KEY_BACKSPACE )
         {
             if( iCommandBufferIndex > 0 )
@@ -56,15 +61,74 @@ void kStartConsoleShell( void )
         }
         else
         {
+            int totalCount = 0, i, j;
+			char * cmdList[iCount], * shortCmd = " ";
+            BOOL check = FALSE;
+
+            //Tab Short Key
             if( bKey == KEY_TAB )
             {
-                bKey = ' ';
+                tabNum++;	
+                if(iCommandBufferIndex > 0)
+				{
+                    int oldLen = kStrLen(vcCommandBuffer), newX = 0;
+					for(int i = 0; i < iCount; i++)
+					{
+                        if(kStrnCmp(vcCommandBuffer, gs_vstCommandTable[i].pcCommand, iCommandBufferIndex) == 1)
+                        {
+                            cmdList[totalCount++] = gs_vstCommandTable[i].pcCommand;
+                            if(shortCmd == " " || kStrLen(shortCmd) > kStrLen(gs_vstCommandTable[i].pcCommand))
+                                shortCmd = gs_vstCommandTable[i].pcCommand;
+                        }
+                    }
+
+                    for(i = kStrLen(vcCommandBuffer); i < kStrLen(shortCmd); i++)
+                    {
+                        for(j = 0; j < totalCount; j++)
+                        {
+                            if(cmdList[j][i] == shortCmd[i])
+                                check = TRUE;
+                            else
+                            {
+                                check = FALSE;
+                                break;
+                            }
+                        }
+                        if(check == FALSE)
+                            break;
+                    }
+
+                    if(i == kStrLen(shortCmd))
+                        tabNum = 0;
+
+                    for(j = kStrLen(vcCommandBuffer); j < i; j++)                    
+                        vcCommandBuffer[iCommandBufferIndex++] = shortCmd[j];
+
+                    kGetCursor( &iCursorX, &iCursorY );
+                    kPrintStringXY( iCursorX - oldLen, iCursorY, vcCommandBuffer);
+                    kSetCursor( iCursorX - oldLen + kStrLen(vcCommandBuffer), iCursorY );
+
+                    if(tabNum > 1)
+                    {
+                        kPrintf("\n");
+                        for(int i = 0; i < iCount; i++)
+                        {
+                            kPrintf(gs_vstCommandTable[i].pcCommand);
+                            kPrintf("  ");
+                        }
+                        kPrintf("\n");
+                        kPrintf( "%s", CONSOLESHELL_PROMPTMESSAGE );            
+                        kPrintf(vcCommandBuffer);            
+                    }
+				}
             }
-            
-            if( iCommandBufferIndex < CONSOLESHELL_MAXCOMMANDBUFFERCOUNT )
+            else
             {
-                vcCommandBuffer[ iCommandBufferIndex++ ] = bKey;
-                kPrintf( "%c", bKey );
+                if( iCommandBufferIndex < CONSOLESHELL_MAXCOMMANDBUFFERCOUNT )
+                {
+                    vcCommandBuffer[ iCommandBufferIndex++ ] = bKey;
+                    kPrintf( "%c", bKey );
+                }
             }
         }
     }
@@ -216,10 +280,21 @@ void kStringToDecimalHexTest( const char* pcParameterBuffer )
     }
 }
 
-void kShutdown( const char* pcParamegerBuffer )
+void kShutdown( const char* pcParameterBuffer )
 {
     kPrintf( "System Shutdown Start...\n" );
     kPrintf( "Press Any Key To Reboot PC..." );
     kGetCh();
     kReboot();
+}
+
+//Dummy Function
+void kHellow( const char* pcParameterBuffer)
+{
+	kPrintf( "Hellow World!\n");
+}
+
+void kStudent( const char* pcParameterBuffer)
+{
+	kPrintf( "We are Student!\n");
 }
