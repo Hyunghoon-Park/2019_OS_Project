@@ -36,8 +36,10 @@ void kStartConsoleShell( void )
                 kGetCursor( &iCursorX, &iCursorY );
                 kPrintStringXY( iCursorX - 1, iCursorY, " " );
                 kSetCursor( iCursorX - 1, iCursorY );
-                iCommandBufferIndex--;
+                vcCommandBuffer[--iCommandBufferIndex] = '\0'; //buffer set to NULL
+                tabNum = 0;
             }
+            
         }
         else if( bKey == KEY_ENTER )
         {
@@ -52,6 +54,7 @@ void kStartConsoleShell( void )
             kPrintf( "%s", CONSOLESHELL_PROMPTMESSAGE );            
             kMemSet( vcCommandBuffer, '\0', CONSOLESHELL_MAXCOMMANDBUFFERCOUNT );
             iCommandBufferIndex = 0;
+            tabNum = 0; //tabNum
         }
         else if( ( bKey == KEY_LSHIFT ) || ( bKey == KEY_RSHIFT ) ||
                  ( bKey == KEY_CAPSLOCK ) || ( bKey == KEY_NUMLOCK ) ||
@@ -62,27 +65,29 @@ void kStartConsoleShell( void )
         else
         {
             int totalCount = 0, i, j;
-			char * cmdList[iCount], * shortCmd = " ";
+			char * cmdList[iCount], * shortCmd = '\0';
             BOOL check = FALSE;
-
-            //Tab Short Key
+            
+            //Tab Shortcut Key
             if( bKey == KEY_TAB )
             {
-                tabNum++;	
                 if(iCommandBufferIndex > 0)
 				{
-                    int oldLen = kStrLen(vcCommandBuffer), newX = 0;
+                    tabNum++;
+                    
+                    int oldLen = iCommandBufferIndex;
+            
 					for(int i = 0; i < iCount; i++)
 					{
                         if(kStrnCmp(vcCommandBuffer, gs_vstCommandTable[i].pcCommand, iCommandBufferIndex) == 1)
                         {
                             cmdList[totalCount++] = gs_vstCommandTable[i].pcCommand;
-                            if(shortCmd == " " || kStrLen(shortCmd) > kStrLen(gs_vstCommandTable[i].pcCommand))
+                            if(shortCmd == '\0' || kStrLen(shortCmd) > kStrLen(gs_vstCommandTable[i].pcCommand))
                                 shortCmd = gs_vstCommandTable[i].pcCommand;
                         }
                     }
 
-                    for(i = kStrLen(vcCommandBuffer); i < kStrLen(shortCmd); i++)
+                    for(i = iCommandBufferIndex; i < kStrLen(shortCmd); i++)
                     {
                         for(j = 0; j < totalCount; j++)
                         {
@@ -101,25 +106,28 @@ void kStartConsoleShell( void )
                     if(i == kStrLen(shortCmd))
                         tabNum = 0;
 
-                    for(j = kStrLen(vcCommandBuffer); j < i; j++)                    
-                        vcCommandBuffer[iCommandBufferIndex++] = shortCmd[j];
-
+                    for(j = iCommandBufferIndex; j <  i; j++)                    
+                        {
+                            vcCommandBuffer[iCommandBufferIndex++] = shortCmd[j];
+                        }
+                    
                     kGetCursor( &iCursorX, &iCursorY );
-                    kPrintStringXY( iCursorX - oldLen, iCursorY, vcCommandBuffer);
-                    kSetCursor( iCursorX - oldLen + kStrLen(vcCommandBuffer), iCursorY );
+                    kPrintStringXY(7, iCursorY, vcCommandBuffer);
+                    kSetCursor( 7 + kStrLen(vcCommandBuffer), iCursorY );
 
-                    if(tabNum > 1)
+                    if(tabNum > 1 && totalCount != 0)
                     {
                         kPrintf("\n");
-                        for(int i = 0; i < iCount; i++)
+                        for(int i = 0; i < totalCount; i++)
                         {
-                            kPrintf(gs_vstCommandTable[i].pcCommand);
+                            kPrintf(cmdList[i]);
                             kPrintf("  ");
                         }
                         kPrintf("\n");
                         kPrintf( "%s", CONSOLESHELL_PROMPTMESSAGE );            
                         kPrintf(vcCommandBuffer);            
                     }
+                    
 				}
             }
             else
