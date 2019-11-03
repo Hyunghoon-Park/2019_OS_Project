@@ -156,6 +156,8 @@ void kStartConsoleShell(void)
                     {
                         updownIndex = 10;
                     }
+                    if(historyList[updownIndex][0] == '\0')
+                    updownIndex--;
                 }
                 else if(bKey == KEY_DOWN)
                 {
