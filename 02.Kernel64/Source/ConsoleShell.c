@@ -24,7 +24,7 @@ void kStartConsoleShell(void)
     int tabNum = 0;
     int updownIndex = 0;
     char historyList[11][CONSOLESHELL_MAXCOMMANDBUFFERCOUNT];
-    historyList[0][0] = "";
+    historyList[0][0] = '\0';
 
     kPrintf(CONSOLESHELL_PROMPTMESSAGE);
 
@@ -50,9 +50,11 @@ void kStartConsoleShell(void)
             {
                 for (int i = 9; i >= 1; i--)
                 {
+                    kMemSet(historyList[i + 1], '\0', CONSOLESHELL_MAXCOMMANDBUFFERCOUNT);
                     kMemCpy(historyList[i + 1], historyList[i], kStrLen(historyList[i]));
-                }
-                kMemCpy(historyList[1], vcCommandBuffer, kStrLen(vcCommandBuffer));
+                    kMemSet(historyList[i], '\0', CONSOLESHELL_MAXCOMMANDBUFFERCOUNT);
+                }                
+                kMemCpy(historyList[1], vcCommandBuffer, iCommandBufferIndex);
 
                 vcCommandBuffer[iCommandBufferIndex] = '\0';
                 kExecuteCommand(vcCommandBuffer);
@@ -140,7 +142,7 @@ void kStartConsoleShell(void)
             else if ((bKey == KEY_UP) || (bKey == KEY_DOWN))
             {
                 while (iCommandBufferIndex)
-                { //clear
+                {
                     kGetCursor(&iCursorX, &iCursorY);
                     kPrintStringXY(iCursorX - 1, iCursorY, " ");
                     kSetCursor(iCursorX - 1, iCursorY);
@@ -155,10 +157,10 @@ void kStartConsoleShell(void)
                         updownIndex = 10;
                     }
                 }
-                else
+                else if(bKey == KEY_DOWN)
                 {
                     updownIndex--;
-                    if (updownIndex < -1)
+                    if (updownIndex < 0)
                     {
                         updownIndex = 0;
                     }
