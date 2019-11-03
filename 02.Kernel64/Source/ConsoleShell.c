@@ -14,14 +14,14 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
 		{ "student", "We are student", kStudent }, //Dummy
 };                                     
 
+
 void kStartConsoleShell( void )
 {
     char vcCommandBuffer[ CONSOLESHELL_MAXCOMMANDBUFFERCOUNT ];
     int iCommandBufferIndex = 0;
     BYTE bKey;
-    int iCursorX, iCursorY;
+    int iCursorX, iCursorY, tabNum = 0;
 	int iCount = sizeof(gs_vstCommandTable) / sizeof(SHELLCOMMANDENTRY);
-    int tabNum = 0;
 
     kPrintf( CONSOLESHELL_PROMPTMESSAGE );
     
@@ -48,7 +48,7 @@ void kStartConsoleShell( void )
             if( iCommandBufferIndex > 0 )
             {
                 vcCommandBuffer[ iCommandBufferIndex ] = '\0';
-                kExecuteCommand( vcCommandBuffer );
+                kExecuteCommand( vcCommandBuffer);
             }
             
             kPrintf( "%s", CONSOLESHELL_PROMPTMESSAGE );            
