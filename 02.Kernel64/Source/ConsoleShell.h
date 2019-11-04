@@ -38,5 +38,6 @@ void kStringToDecimalHexTest(const char * pcParameterBuffer);
 void kShutdown(const char * pcParameterBuffer);
 void kHellow(const char * pcParameterBuffer);
 void kStudent(const char * pcParameterBuffer);
+void checka(const char * pcParameterBuffer);
 
 #endif

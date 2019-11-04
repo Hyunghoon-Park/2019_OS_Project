@@ -42,7 +42,7 @@ void kInitializePageTables(void)
 		kSetPageEntryData(&(pstPTEntry[i]), 0, dwMappingAddress2, PAGE_FLAGS_DEFAULT, 0);
 		dwMappingAddress2 += 0x1000;
 	}
-	kSetPageEntryData(&(pstPTEntry[511]), 0, dwMappingAddress2, PAGE_FLAGS_P, 0);
+	kSetPageEntryData(&(pstPTEntry[511]), 0, dwMappingAddress2, 0, 0);
 
 
 	//Set PDEntry

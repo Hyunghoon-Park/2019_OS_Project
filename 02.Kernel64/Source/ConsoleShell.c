@@ -12,6 +12,7 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"shutdown", "Shutdown And Reboot OS", kShutdown},
         {"hellow", "Welcome OS", kHellow},       //Dummy
         {"student", "We are student", kStudent}, //Dummy
+		{"raisefault", "page or protection fault occur", checka},
 };
 
 void kStartConsoleShell(void)
@@ -345,4 +346,19 @@ void kHellow(const char *pcParameterBuffer)
 void kStudent(const char *pcParameterBuffer)
 {
     kPrintf("We are Student!\n");
+}
+
+void checka(const char *pcParameterBuffer)
+{
+	long *ptr = (long*)0x1ff000;
+	long *pte = (long*)0x142ff8;
+	long k = 0;
+	//k = *ptr;
+	if((*pte & 1) == 0){
+		k = *ptr;
+		return;
+	}
+	else{
+		*ptr = 3;
+	}
 }
