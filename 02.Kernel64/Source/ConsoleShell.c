@@ -353,7 +353,7 @@ void checka(const char *pcParameterBuffer)
 	long *ptr = (long*)0x1ff000;
 	long *pte = (long*)0x142ff8;
 	long k = 0;
-	//k = *ptr;
+    
 	if((*pte & 1) == 0){
 		k = *ptr;
 		return;
