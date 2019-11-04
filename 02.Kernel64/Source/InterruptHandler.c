@@ -12,25 +12,31 @@ void kCommonExceptionHandler( int iVectorNumber, QWORD qwErrorCode )
 
 	if(iVectorNumber == 14)
 	{
+		int iX, iY;
 		long *ptr = (long*)0x142000;
 		void *temp = (void*)0x142ff8;
 		if((qwErrorCode & 1) == 0)
 		{
-    		kPrintStringXY( 0, 0, "====================================================" );
-    		kPrintStringXY( 0, 1, "                 Page fault Occur~!!!!               " );
-    		kPrintStringXY( 0, 2, "                    Vector: 0x1ff000                        " );
-    		kPrintStringXY( 0, 3, "====================================================" );
-    		kPrintStringXY( 0, 3, qwErrorCode );
+			kGetCursor(&iX, &iY);
+			kSetCursor(0, iY);
+
+    		kPrintf("====================================================\n" );
+    		kPrintf("                 Page fault Occur~!!!!               \n" );
+    		kPrintf("                    Vector: 0x1ff000                 \n" );
+    		kPrintf("====================================================\n" );
+			//kSetCursor(7, iY + 4);
 			ptr[511] = ptr[511] | 1;
 			invlpg(temp);
 		}
 		else if((qwErrorCode & 2) == 2)
 		{
-    		kPrintStringXY( 0, 0, "====================================================" );
-    		kPrintStringXY( 0, 1, "                 Protection fault Occur~!!!!               " );
-    		kPrintStringXY( 0, 2, "                    Vector: 0x1ff000                        " );
-    		kPrintStringXY( 0, 3, "====================================================" );
-    		kPrintStringXY( 0, 3, qwErrorCode );
+			kGetCursor(&iX, &iY);
+			kSetCursor(0, iY);
+    		kPrintf("====================================================\n" );
+    		kPrintf("                 Protection fault Occur~!!!!         \n" );
+    		kPrintf("                    Vector: 0x1ff000                 \n" );
+    		kPrintf("====================================================\n" );
+			//kSetCursor(7, iY + 4);
 			ptr[511] = ptr[511] | 2;
 		}
 	}
