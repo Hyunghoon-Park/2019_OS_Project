@@ -9,14 +9,40 @@ void kCommonExceptionHandler( int iVectorNumber, QWORD qwErrorCode )
 
     vcBuffer[ 0 ] = '0' + iVectorNumber / 10;
     vcBuffer[ 1 ] = '0' + iVectorNumber % 10;
-    
-    kPrintStringXY( 0, 0, "====================================================" );
-    kPrintStringXY( 0, 1, "                 Exception Occur~!!!!               " );
-    kPrintStringXY( 0, 2, "                    Vector:                         " );
-    kPrintStringXY( 27, 2, vcBuffer );
-    kPrintStringXY( 0, 3, "====================================================" );
 
-    while( 1 ) ;
+	if(iVectorNumber == 14)
+	{
+		long *ptr = (long*)0x142000;
+		void *temp = (void*)0x142ff8;
+		if((qwErrorCode & 1) == 0)
+		{
+    		kPrintStringXY( 0, 0, "====================================================" );
+    		kPrintStringXY( 0, 1, "                 Page fault Occur~!!!!               " );
+    		kPrintStringXY( 0, 2, "                    Vector: 0x1ff000                        " );
+    		kPrintStringXY( 0, 3, "====================================================" );
+    		kPrintStringXY( 0, 3, qwErrorCode );
+			ptr[511] = ptr[511] | 1;
+			invlpg(temp);
+		}
+		else if((qwErrorCode & 2) == 2)
+		{
+    		kPrintStringXY( 0, 0, "====================================================" );
+    		kPrintStringXY( 0, 1, "                 Protection fault Occur~!!!!               " );
+    		kPrintStringXY( 0, 2, "                    Vector: 0x1ff000                        " );
+    		kPrintStringXY( 0, 3, "====================================================" );
+    		kPrintStringXY( 0, 3, qwErrorCode );
+			ptr[511] = ptr[511] | 2;
+		}
+	}
+	else{
+    	kPrintStringXY( 0, 0, "====================================================" );
+    	kPrintStringXY( 0, 1, "                 Exception Occur~!!!!               " );
+    	kPrintStringXY( 0, 2, "                    Vector:                         " );
+    	kPrintStringXY( 27, 2, vcBuffer );
+    	kPrintStringXY( 0, 3, "====================================================" );
+    	while( 1 ) ;
+	}
+
 }
 
 void kCommonInterruptHandler( int iVectorNumber )
@@ -50,4 +76,8 @@ void kKeyboardHandler( int iVectorNumber )
     }
 
     kSendEOIToPIC( iVectorNumber - PIC_IRQSTARTVECTOR );
+}
+
+static inline void invlpg(void* m){
+	asm volatile ( "invlpg (%0)" : : "b"(m) : "memory" );
 }

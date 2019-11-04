@@ -5,8 +5,6 @@
 #include "Console.h"
 #include "ConsoleShell.h"
 
-#define A1 (*((volatile unsigned char *)0x1FE000))
-#define A2 (*((volatile unsigned char *)0x1FF000))
 
 void checkReadWrite();
 void Main(void)
@@ -17,7 +15,6 @@ void Main(void)
 	kPrintf("Switch To IA-32e Mode Success~!!\n");
 	kPrintf("IA-32e C Language Kernel Start..............[Pass]\n");
 	kPrintf("This message is printed through the video memory relocated to 0xAB8000\n");
-	checkReadWrite();
 
 	kGetCursor(&iCursorX, &iCursorY);
 	kPrintf("GDT Initialize And Switch For IA-32e Mode...[    ]");
@@ -65,17 +62,4 @@ void Main(void)
 	kPrintf("Pass\n");
 
 	kStartConsoleShell();
-}
-
-void checkReadWrite()
-{
-	char * t = A1;
-	kPrintf("Read from 0x1FE000..........................[Ok]\n");
-	A1 = 0;
-	kPrintf("Write to 0x1FE000...........................[Ok]\n");
-	*t = A2;
-	kPrintf("Read from 0x1FF000..........................[Ok]\n");
-	//If uncomment this, occur error!
-	//A2 = 0;
-	//kPrintString(0,18,"Write to 0x1FF000.....[Ok]");
 }
