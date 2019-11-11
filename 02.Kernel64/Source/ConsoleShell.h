@@ -39,5 +39,11 @@ void kShutdown(const char * pcParameterBuffer);
 void kHellow(const char * pcParameterBuffer);
 void kStudent(const char * pcParameterBuffer);
 void checka(const char * pcParameterBuffer);
+void kSetTimer(const char * pcParameterBuffer);
+void kWaitUsingPIT(const char * pcParameterBuffer);
+void kReadTimeStampCounter(const char* pcParameterBuffer);
+void kMeasureProcessorSpeed(const char* pcParameterBuffer);
+void kShowDateAndTime(const char * pcParameterBuffer);
+void kCreateTestTask(const char * pcParameterBuffer);
 
 #endif
