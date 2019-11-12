@@ -30,6 +30,7 @@ void kInitializePageTables(void)
 	//Set 4kb PTEntry
 	pstPDEntry = (PDENTRY*)0x102000;
 	dwMappingAddress = 0;
+	/*
 	pstPTEntry = (PTENTRY*)0x142000;
 	dwMappingAddress2 = 0;
 
@@ -43,7 +44,7 @@ void kInitializePageTables(void)
 		dwMappingAddress2 += 0x1000;
 	}
 	kSetPageEntryData(&(pstPTEntry[511]), 0, dwMappingAddress2, 0, 0);
-
+	
 
 	//Set PDEntry
 	for(i = 1; i < 5; i++)
@@ -61,7 +62,15 @@ void kInitializePageTables(void)
 		kSetPageEntryData(&(pstPDEntry[i]), (i * (PAGE_DEFAULTSIZE >> 20)) >> 12, dwMappingAddress,
 		PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS, 0);
 		dwMappingAddress += PAGE_DEFAULTSIZE;
-	}
+	}*/
+	for( i = 0 ; i < PAGE_MAXENTRYCOUNT * 64 ; i++ )
+	{
+		kSetPageEntryData( &( pstPDEntry[ i ] ), 
+				( i * ( PAGE_DEFAULTSIZE >> 20 ) ) >> 12, dwMappingAddress, 
+				PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS, 0 );
+		dwMappingAddress += PAGE_DEFAULTSIZE;
+	}	
+
 }
 
 void kSetPageEntryData(PTENTRY * pstEntry, DWORD dwUpperBaseAddress, DWORD dwLowerBaseAddress, DWORD dwLowerFlags, DWORD dwUpperFlags)
