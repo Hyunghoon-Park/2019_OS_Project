@@ -64,6 +64,7 @@ void kPageFault(int p, QWORD qwErrorCode)
             kPrintf("%c", vcBuffer[i]);
         kPrintf("\n====================================================\n");
         PTE[pt] = PTE[pt] | 0x2;
+        
     }
 }
 
