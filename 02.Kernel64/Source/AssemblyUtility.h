@@ -12,10 +12,6 @@ void kLoadIDTR(QWORD qwIDTRAddress);
 void kEnableInterrupt(void);
 void kDisableInterrupt(void);
 QWORD kReadRFLAGS(void);
-<<<<<<< HEAD
-=======
-QWORD kReadTSC(void);
->>>>>>> master
 void kSwitchContext(CONTEXT* pstCurrentContext, CONTEXT* pstNextContext);
 void kHlt(void);
 
