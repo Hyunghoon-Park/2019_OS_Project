@@ -2,6 +2,9 @@
 #include "Console.h"
 #include "Keyboard.h"
 #include "Utility.h"
+#include "PIT.h"
+#include "RTC.h"
+#include "AssemblyUtility.h"
 
 SHELLCOMMANDENTRY gs_vstCommandTable[] =
     {
@@ -13,6 +16,10 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"hellow", "Welcome OS", kHellow},       //Dummy
         {"student", "We are student", kStudent}, //Dummy
 		{"raisefault", "page or protection fault occur", checka},
+        { "wait", "Wait ms Using PIT, ex)wait 100(ms)", kWaitUsingPIT },
+        { "rdtsc", "Read Time Stamp Counter", kReadTimeStampCounter },
+        { "cpuspeed", "Measure Processor Speed", kMeasureProcessorSpeed },
+        { "date", "Show Date And Time", kShowDateAndTime },
 };
 
 void kStartConsoleShell(void)
@@ -361,4 +368,105 @@ void checka(const char *pcParameterBuffer)
 	else{
 		*ptr = 3;
 	}
+}
+
+void kSetTimer( const char* pcParameterBuffer )
+{
+    char vcParameter[ 100 ];
+    PARAMETERLIST stList;
+    long lValue;
+    BOOL bPeriodic;
+
+    kInitializeParameter( &stList, pcParameterBuffer );
+    
+    if( kGetNextParameter( &stList, vcParameter ) == 0 )
+    {
+        kPrintf( "ex)settimer 10(ms) 1(periodic)\n" );
+        return ;
+    }
+    lValue = kAToI( vcParameter, 10 );
+
+    if( kGetNextParameter( &stList, vcParameter ) == 0 )
+    {
+        kPrintf( "ex)settimer 10(ms) 1(periodic)\n" );
+        return ;
+    }    
+    bPeriodic = kAToI( vcParameter, 10 );
+    
+    kInitializePIT( MSTOCOUNT( lValue ), bPeriodic );
+    kPrintf( "Time = %d ms, Periodic = %d Change Complete\n", lValue, bPeriodic );
+}
+
+void kWaitUsingPIT( const char* pcParameterBuffer )
+{
+    char vcParameter[ 100 ];
+    int iLength;
+    PARAMETERLIST stList;
+    long lMillisecond;
+    int i;
+    
+    kInitializeParameter( &stList, pcParameterBuffer );
+    if( kGetNextParameter( &stList, vcParameter ) == 0 )
+    {
+        kPrintf( "ex)wait 100(ms)\n" );
+        return ;
+    }
+    
+    lMillisecond = kAToI( pcParameterBuffer, 10 );
+    kPrintf( "%d ms Sleep Start...\n", lMillisecond );
+    
+    kDisableInterrupt();
+    for( i = 0 ; i < lMillisecond / 30 ; i++ )
+    {
+        kWaitUsingDirectPIT( MSTOCOUNT( 30 ) );
+    }
+    kWaitUsingDirectPIT( MSTOCOUNT( lMillisecond % 30 ) );   
+    kEnableInterrupt();
+    kPrintf( "%d ms Sleep Complete\n", lMillisecond );
+    
+    kInitializePIT( MSTOCOUNT( 1 ), TRUE );
+}
+
+void kReadTimeStampCounter( const char* pcParameterBuffer )
+{
+    QWORD qwTSC;
+    
+    qwTSC = kReadTSC();
+    kPrintf( "Time Stamp Counter = %q\n", qwTSC );
+}
+
+void kMeasureProcessorSpeed( const char* pcParameterBuffer )
+{
+    int i;
+    QWORD qwLastTSC, qwTotalTSC = 0;
+        
+    kPrintf( "Now Measuring." );
+    
+    kDisableInterrupt();    
+    for( i = 0 ; i < 200 ; i++ )
+    {
+        qwLastTSC = kReadTSC();
+        kWaitUsingDirectPIT( MSTOCOUNT( 50 ) );
+        qwTotalTSC += kReadTSC() - qwLastTSC;
+
+        kPrintf( "." );
+    }
+    kInitializePIT( MSTOCOUNT( 1 ), TRUE );    
+    kEnableInterrupt();
+    
+    kPrintf( "\nCPU Speed = %d MHz\n", qwTotalTSC / 10 / 1000 / 1000 );
+}
+
+void kShowDateAndTime( const char* pcParameterBuffer )
+{
+    BYTE bSecond, bMinute, bHour;
+    BYTE bDayOfWeek, bDayOfMonth, bMonth;
+    WORD wYear;
+
+    kReadRTCTime( &bHour, &bMinute, &bSecond );
+    kReadRTCDate( &wYear, &bMonth, &bDayOfMonth, &bDayOfWeek );
+    
+    kPrintf( "Date: %d/%d/%d %s, ", wYear, bMonth, bDayOfMonth,
+             kConvertDayOfWeekToString( bDayOfWeek ) );
+    kPrintf( "Time: %d:%d:%d\n", bHour, bMinute, bSecond );
 }
