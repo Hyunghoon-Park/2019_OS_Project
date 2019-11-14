@@ -31,7 +31,7 @@
 #define TASK_RFLAGSOFFSET       21
 #define TASK_RSPOFFSET          22
 #define TASK_SSOFFSET           23
-#define TASK_TCBPOOLADDRESS     0x800000
+#define TASK_TCBPOOLADDRESS     0x7f3cb0
 #define TASK_MAXCOUNT           1024
 #define TASK_STACKPOOLADDRESS   ( TASK_TCBPOOLADDRESS + sizeof( TCB ) * TASK_MAXCOUNT )
 #define TASK_STACKSIZE          8192
