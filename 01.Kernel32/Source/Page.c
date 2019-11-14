@@ -26,10 +26,11 @@ void kInitializePageTables(void)
 	for(i = 64; i < PAGE_MAXENTRYCOUNT; i++)
 		kSetPageEntryData(&(pstPDPTEntry[i]),0,0,0,0);
 
-
+	
 	//Set 4kb PTEntry
 	pstPDEntry = (PDENTRY*)0x102000;
 	dwMappingAddress = 0;
+
 	pstPTEntry = (PTENTRY*)0x142000;
 	dwMappingAddress2 = 0;
 
@@ -55,6 +56,7 @@ void kInitializePageTables(void)
 
 	kSetPageEntryData(&(pstPDEntry[5]),(0 * (PAGE_DEFAULTSIZE >> 20)) >> 12, 0, PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS,0);
 	dwMappingAddress += PAGE_DEFAULTSIZE;
+	
 
 	for(i = 6; i < PAGE_MAXENTRYCOUNT * 64; i++)
 	{

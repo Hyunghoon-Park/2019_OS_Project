@@ -2,8 +2,8 @@
 
 SECTION .text     
 
-extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler
-
+extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler, kPageFault
+extern kTimerHandler
 
 global kISRDivideError, kISRDebug, kISRNMI, kISRBreakPoint, kISROverflow
 global kISRBoundRangeExceeded, kISRInvalidOpcode, kISRDeviceNotAvailable, kISRDoubleFault,
@@ -212,9 +212,9 @@ kISRGeneralProtection:
 kISRPageFault:
     KSAVECONTEXT    
 
-    mov rdi, 14
+    mov rdi, CR2
     mov rsi, qword [ rbp + 8 ]
-    call kCommonExceptionHandler
+    call kPageFault
 
     KLOADCONTEXT    
     add rsp, 8      
@@ -280,7 +280,7 @@ kISRTimer:
     KSAVECONTEXT    
 
     mov rdi, 32
-    call kCommonInterruptHandler
+    call kTimerHandler
 
     KLOADCONTEXT    
     iretq         

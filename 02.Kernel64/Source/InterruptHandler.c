@@ -2,53 +2,70 @@
 #include "PIC.h"
 #include "Keyboard.h"
 #include "Console.h"
+#include "Utility.h"
+#include "Task.h"
+#include "Descriptor.h"
+#include "../../01.Kernel32/Source/Page.h"
 
 void kCommonExceptionHandler( int iVectorNumber, QWORD qwErrorCode )
 {
-    char vcBuffer[ 3 ] = { 0, };
+    char vcBuffer[3] = {0,};
+    vcBuffer[0] = '0' + iVectorNumber / 10;
+    vcBuffer[1] = '1' + iVectorNumber % 10;
 
-    vcBuffer[ 0 ] = '0' + iVectorNumber / 10;
-    vcBuffer[ 1 ] = '0' + iVectorNumber % 10;
+    kPrintStringXY( 0, 0, "====================================================" );
+    kPrintStringXY( 0, 1, "                 Exception Occur~!!!!               " );
+    kPrintStringXY( 0, 2, "                    Vector:                         " );
+    kPrintStringXY( 27, 2, vcBuffer);
+    kPrintStringXY( 0, 3, "====================================================" );
+    while(1);
+}
 
-	if(iVectorNumber == 14)
-	{
-		int iX, iY;
-		long *ptr = (long*)0x142000;
-		void *temp = (void*)0x142ff8;
-		if((qwErrorCode & 1) == 0)
-		{
-			kGetCursor(&iX, &iY);
-			kSetCursor(0, iY);
+void kPageFault(int p, QWORD qwErrorCode)
+{
+    int iX, iY;
+    long *PTE = (long*)0x142000;
+    int pt = (p >> 12);
+    char vcBuffer[10] = {0,};
+    int num = 0, mask = 0x00f00000;
 
-    		kPrintf("====================================================\n" );
-    		kPrintf("                 Page fault Occur~!!!!               \n" );
-    		kPrintf("                    Vector: 0x1ff000                 \n" );
-    		kPrintf("====================================================\n" );
-			//kSetCursor(7, iY + 4);
-			ptr[511] = ptr[511] | 1;
-			invlpg(temp);
-		}
-		else if((qwErrorCode & 2) == 2)
-		{
-			kGetCursor(&iX, &iY);
-			kSetCursor(0, iY);
-    		kPrintf("====================================================\n" );
-    		kPrintf("                 Protection fault Occur~!!!!         \n" );
-    		kPrintf("                    Vector: 0x1ff000                 \n" );
-    		kPrintf("====================================================\n" );
-			//kSetCursor(7, iY + 4);
-			ptr[511] = ptr[511] | 2;
-		}
-	}
-	else{
-    	kPrintStringXY( 0, 0, "====================================================" );
-    	kPrintStringXY( 0, 1, "                 Exception Occur~!!!!               " );
-    	kPrintStringXY( 0, 2, "                    Vector:                         " );
-    	kPrintStringXY( 27, 2, vcBuffer );
-    	kPrintStringXY( 0, 3, "====================================================" );
-    	while( 1 ) ;
-	}
+    for(int i = 0; i < 6; i++)
+    {
+        if((num = ((p & mask) >> (20 - i * 4))) <= 9)
+            vcBuffer[i] = '0' + num;
+        else
+            vcBuffer[i] = 87 + num;
+        mask >>= 4;
+    }
 
+    if((qwErrorCode & 1) == 0)
+    {
+        kGetCursor(&iX, &iY);
+        kSetCursor(0, iY);
+
+        kPrintf("====================================================\n");
+        kPrintf("               Page Fault Occur~!!!!                \n");
+        kPrintf("                   Address : ");
+        for(int i = 0; i < 6; i++)
+            kPrintf("%c", vcBuffer[i]);
+        kPrintf("\n====================================================\n");
+        PTE[pt] = PTE[pt] | 0x1;
+        invlpg(PTE);
+        while(1);
+    }
+    else if((qwErrorCode & 2) == 2)
+    {
+        kGetCursor(&iX, &iY);
+        kSetCursor(0, iY);
+
+        kPrintf("====================================================\n");
+        kPrintf("               Protection Fault Occur~!!!!          \n");
+        kPrintf("                   Address : ");
+        for(int i = 0; i < 6; i++)
+            kPrintf("%c", vcBuffer[i]);
+        kPrintf("\n====================================================\n");
+        PTE[pt] = PTE[pt] | 0x2;
+    }
 }
 
 void kCommonInterruptHandler( int iVectorNumber )
@@ -86,4 +103,27 @@ void kKeyboardHandler( int iVectorNumber )
 
 static inline void invlpg(void* m){
 	asm volatile ( "invlpg (%0)" : : "b"(m) : "memory" );
+}
+
+void kTimerHandler( int iVectorNumber )
+{
+    char vcBuffer[] = "[INT:  , ]";
+    static int g_iTimerInterruptCount = 0;
+
+    vcBuffer[ 5 ] = '0' + iVectorNumber / 10;
+    vcBuffer[ 6 ] = '0' + iVectorNumber % 10;
+    
+    vcBuffer[ 8 ] = '0' + g_iTimerInterruptCount;
+    g_iTimerInterruptCount = ( g_iTimerInterruptCount + 1 ) % 10;
+    kPrintStringXY( 70, 0, vcBuffer );
+   
+    kSendEOIToPIC( iVectorNumber - PIC_IRQSTARTVECTOR );
+
+    g_qwTickCount++;
+
+    kDecreaseProcessorTime();
+    if( kIsProcessorTimeExpired() == TRUE )
+    {
+        kScheduleInInterrupt();
+    }
 }

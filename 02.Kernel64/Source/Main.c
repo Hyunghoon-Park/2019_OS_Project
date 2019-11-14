@@ -4,7 +4,8 @@
 #include "PIC.h"
 #include "Console.h"
 #include "ConsoleShell.h"
-
+#include "Task.h"
+#include "PIT.h"
 
 void checkReadWrite();
 void Main(void)
@@ -39,6 +40,11 @@ void Main(void)
 	kSetCursor(45, iCursorY++);
 	kPrintf("Pass], Size = %d MB\n", kGetTotalRAMSize());
 
+	kPrintf("TCP Pool And Scheduler Initialize...........[Pass]\n");
+	iCursorY++;
+	kInitializeScheduler();
+	kInitializePIT(MSTOCOUNT(1),1);
+	
 	kPrintf("Keyboard Activate And Queue Initialize......[    ]");
 	if(kInitializeKeyboard() == TRUE)
 	{
@@ -61,5 +67,6 @@ void Main(void)
 	kSetCursor(45,iCursorY++);
 	kPrintf("Pass\n");
 
+	kCreateTask(TASK_FLAGS_LOWEST | TASK_FLAGS_IDLE, (QWORD)kIdleTask);
 	kStartConsoleShell();
 }
