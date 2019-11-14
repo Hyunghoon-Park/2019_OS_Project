@@ -51,7 +51,6 @@ void kPageFault(int p, QWORD qwErrorCode)
         kPrintf("\n====================================================\n");
         PTE[pt] = PTE[pt] | 0x1;
         invlpg(PTE);
-        while(1);
     }
     else if((qwErrorCode & 2) == 2)
     {
