@@ -2,7 +2,11 @@
 
 SECTION .text     
 
+<<<<<<< HEAD
+extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler, kPageFault
+=======
 extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler
+>>>>>>> master
 extern kTimerHandler
 
 global kISRDivideError, kISRDebug, kISRNMI, kISRBreakPoint, kISROverflow
@@ -212,9 +216,9 @@ kISRGeneralProtection:
 kISRPageFault:
     KSAVECONTEXT    
 
-    mov rdi, 14
+    mov rdi, CR2
     mov rsi, qword [ rbp + 8 ]
-    call kCommonExceptionHandler
+    call kPageFault
 
     KLOADCONTEXT    
     add rsp, 8      

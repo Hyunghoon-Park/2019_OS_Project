@@ -39,6 +39,20 @@ static void kShutdown(const char * pcParameterBuffer);
 static void kHellow(const char * pcParameterBuffer);
 static void kStudent(const char * pcParameterBuffer);
 static void checka(const char * pcParameterBuffer);
+<<<<<<< HEAD
+static void kSetTimer( const char* pcParameterBuffer );
+static void kWaitUsingPIT( const char* pcParameterBuffer );
+static void kReadTimeStampCounter( const char* pcParameterBuffer );
+static void kMeasureProcessorSpeed( const char* pcParameterBuffer );
+static void kShowDateAndTime( const char* pcParameterBuffer );
+static void kCreateTestTask(const char* pcParameterBuffer);
+static void kChangeTaskPriority( const char* pcParameterBuffer );
+static void kShowTaskList( const char* pcParameterBuffer );
+static void kKillTask( const char* pcParameterBuffer );
+static void kCPULoad( const char* pcParameterBuffer );
+
+#endif
+=======
 static void kSetTimer(const char * pcParameterBuffer);
 static void kWaitUsingPIT(const char * pcParameterBuffer);
 static void kReadTimeStampCounter(const char* pcParameterBuffer);
@@ -51,3 +65,4 @@ static void kKillTask(const char * pcParameterBuffer);
 static void kCPULoad(const char * pcParameterBuffer);
 
 #endif
+>>>>>>> master

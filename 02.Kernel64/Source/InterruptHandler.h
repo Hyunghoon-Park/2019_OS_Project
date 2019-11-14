@@ -8,5 +8,9 @@ void kCommonInterruptHandler(int iVectorNumber);
 void kKeyboardHandler(int iVectorNumber);
 static inline void invlpg(void* m);
 void kTimerHandler(int iVectorNumber);
+<<<<<<< HEAD
+void kPageFault(int p, QWORD qwErrorCode);
+=======
+>>>>>>> master
 
 #endif
