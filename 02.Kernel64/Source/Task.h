@@ -31,6 +31,7 @@
 #define TASK_RFLAGSOFFSET       21
 #define TASK_RSPOFFSET          22
 #define TASK_SSOFFSET           23
+<<<<<<< HEAD
 #define TASK_TCBPOOLADDRESS     0x7f3cb0
 #define TASK_MAXCOUNT           1024
 #define TASK_STACKPOOLADDRESS   ( TASK_TCBPOOLADDRESS + sizeof( TCB ) * TASK_MAXCOUNT )
@@ -38,14 +39,36 @@
 #define TASK_INVALIDID          0xFFFFFFFFFFFFFFFF
 #define TASK_PROCESSORTIME      5
 #define TASK_MAXREADYLISTCOUNT  5
+=======
+
+#define TASK_TCBPOOLADDRESS     0x800000
+#define TASK_MAXCOUNT           1024
+
+#define TASK_STACKPOOLADDRESS   ( TASK_TCBPOOLADDRESS + sizeof( TCB ) * TASK_MAXCOUNT )
+#define TASK_STACKSIZE          8192
+
+#define TASK_INVALIDID          0xFFFFFFFFFFFFFFFF
+
+#define TASK_PROCESSORTIME      5
+
+#define TASK_MAXREADYLISTCOUNT  5
+
+>>>>>>> master
 #define TASK_FLAGS_HIGHEST            0
 #define TASK_FLAGS_HIGH               1
 #define TASK_FLAGS_MEDIUM             2
 #define TASK_FLAGS_LOW                3
 #define TASK_FLAGS_LOWEST             4
 #define TASK_FLAGS_WAIT               0xFF          
+<<<<<<< HEAD
 #define TASK_FLAGS_ENDTASK            0x8000000000000000
 #define TASK_FLAGS_IDLE               0x0800000000000000
+=======
+
+#define TASK_FLAGS_ENDTASK            0x8000000000000000
+#define TASK_FLAGS_IDLE               0x0800000000000000
+
+>>>>>>> master
 #define GETPRIORITY( x )        ( ( x ) & 0xFF )
 #define SETPRIORITY( x, priority )  ( ( x ) = ( ( x ) & 0xFFFFFFFFFFFFFF00 ) | \
         ( priority ) )
@@ -61,6 +84,10 @@ typedef struct kContextStruct
 typedef struct kTaskControlBlockStruct
 {
     LISTLINK stLink;
+<<<<<<< HEAD
+=======
+    
+>>>>>>> master
     QWORD qwFlags;
 
     CONTEXT stContext;
@@ -108,7 +135,11 @@ void kInitializeScheduler( void );
 void kSetRunningTask( TCB* pstTask );
 TCB* kGetRunningTask( void );
 TCB* kGetNextTaskToRun( void );
+<<<<<<< HEAD
 BOOL kAddTaskToReadyList(TCB* pstTask);
+=======
+BOOL kAddTaskToReadyList( TCB* pstTask );
+>>>>>>> master
 void kSchedule( void );
 BOOL kScheduleInInterrupt( void );
 void kDecreaseProcessorTime( void );
@@ -123,7 +154,12 @@ TCB* kGetTCBInTCBPool( int iOffset );
 BOOL kIsTaskExist( QWORD qwID );
 QWORD kGetProcessorLoad( void );
 
+<<<<<<< HEAD
 void kIdleTask(void);
 void kHaltProcessorByLoad(void);
+=======
+void kIdleTask( void );
+void kHaltProcessorByLoad( void );
+>>>>>>> master
 
 #endif

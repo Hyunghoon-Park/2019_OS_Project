@@ -384,4 +384,8 @@ int kVSPrintf( char* pcBuffer, const char* pcFormatString, va_list ap )
 QWORD kGetTickCount( void )
 {
     return g_qwTickCount;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

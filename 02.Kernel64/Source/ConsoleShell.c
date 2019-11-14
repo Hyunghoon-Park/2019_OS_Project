@@ -5,7 +5,10 @@
 #include "PIT.h"
 #include "RTC.h"
 #include "AssemblyUtility.h"
+<<<<<<< HEAD
 #include "Task.h"
+=======
+>>>>>>> master
 
 SHELLCOMMANDENTRY gs_vstCommandTable[] =
     {
@@ -17,6 +20,7 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"hellow", "Welcome OS", kHellow},       //Dummy
         {"student", "We are student", kStudent}, //Dummy
 		{"raisefault", "page or protection fault occur", checka},
+<<<<<<< HEAD
         { "wait", "Wait ms Using PIT, ex)wait 100(ms)", kWaitUsingPIT },
         { "rdtsc", "Read Time Stamp Counter", kReadTimeStampCounter },
         { "cpuspeed", "Measure Processor Speed", kMeasureProcessorSpeed },
@@ -25,6 +29,18 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         { "tasklist", "Show Task List", kShowTaskList },
         { "killtask", "End Task, ex)killtask 1(ID)", kKillTask },
         { "cpuload", "Show Processor Load", kCPULoad },
+=======
+        {"settimer", "Set PIT Controller Counter0, ex)settimer 10(ms) 1(periodic)", kSetTimer},
+        {"wait", "Wait ms Using PIT, ex)wait 100(ms)", kWaitUsingPIT},
+        {"rdtsc", "Read Time Stamp Counter", kReadTimeStampCounter},
+        {"cpuspeed", "Measure Processor Speed", kMeasureProcessorSpeed},
+        {"date", "Show Date And Time", kShowDateAndTime},
+        {"createtask", "Create Task, ex)createtask 1(type) 10(count)", kCreateTestTask},
+        {"changepriority", "Change Task Priority, ex)changepriority 1(ID) 2(Priority)", kChangePriority},
+        {"tasklist", "Show Task List", kShowTaskList},
+        {"killtask", "End Task, ex)killtask 1(ID)", kKillTask},
+        {"cpuload", "show Processor Load", kCPULoad},
+>>>>>>> master
 };
 
 void kStartConsoleShell(void)
@@ -375,13 +391,20 @@ static void checka(const char *pcParameterBuffer)
 	}
 }
 
+<<<<<<< HEAD
 static void kSetTimer( const char* pcParameterBuffer )
 {
     char vcParameter[ 100 ];
+=======
+static void kSetTimer(const char * pcParameterBuffer)
+{
+    char vcParameter[100];
+>>>>>>> master
     PARAMETERLIST stList;
     long lValue;
     BOOL bPeriodic;
 
+<<<<<<< HEAD
     kInitializeParameter( &stList, pcParameterBuffer );
     
     if( kGetNextParameter( &stList, vcParameter ) == 0 )
@@ -405,10 +428,36 @@ static void kSetTimer( const char* pcParameterBuffer )
 static void kWaitUsingPIT( const char* pcParameterBuffer )
 {
     char vcParameter[ 100 ];
+=======
+    kInitializeParameter(&stList, pcParameterBuffer);
+
+    if(kGetNextParameter(&stList, vcParameter) == 0)
+    {
+        kPrintf("ex)settimer 10(ms) 1(periodic)\n");
+        return;
+    }
+    lValue = kAToI(vcParameter, 10);
+
+    if(kGetNextParameter(&stList, vcParameter) == 0)
+    {
+        kPrintf("ex)settimer 10(ms) 1(periodic)\n");
+        return;
+    }
+    bPeriodic = kAToI(vcParameter, 10);
+
+    kInitializePIT(MSTOCOUNT(lValue), bPeriodic);
+    kPrintf("Time = %d ms, Periodic = %d Change Complete\n", lValue, bPeriodic);
+}
+
+static void kWaitUsingPIT(const char* pcParameterBuffer)
+{
+    char vcParameter[100];
+>>>>>>> master
     int iLength;
     PARAMETERLIST stList;
     long lMillisecond;
     int i;
+<<<<<<< HEAD
     
     kInitializeParameter( &stList, pcParameterBuffer );
     if( kGetNextParameter( &stList, vcParameter ) == 0 )
@@ -463,17 +512,79 @@ static void kMeasureProcessorSpeed( const char* pcParameterBuffer )
 }
 
 static void kShowDateAndTime( const char* pcParameterBuffer )
+=======
+
+    kInitializeParameter(&stList, pcParameterBuffer);
+    if(kGetNextParameter(&stList, vcParameter) == 0)
+    {
+        kPrintf("ex)wait 100(ms)\n");
+        return;
+    }
+
+    lMillisecond = kAToI(pcParameterBuffer, 10);
+    kPrintf("%d ms Sleep Start...\n", lMillisecond);
+
+    kDisableInterrupt();
+
+    for(i = 0; i < lMillisecond / 30; i++)
+        kWaitUsingDirectPIT(MSTOCOUNT(30));
+    kWaitUsingDirectPIT(MSTOCOUNT(lMillisecond % 30));
+    kEnableInterrupt();
+    kPrintf("%d ms Sleep Complete\n", lMillisecond);
+
+    kInitializePIT(MSTOCOUNT(1), TRUE);
+}
+
+static void kReadTimeStampCounter(const char * pcParameterBuffer)
+{
+    QWORD qwTSC;
+
+    qwTSC = kReadTSC();
+    kPrintf("Time Stamp Counter = %q\n", qwTSC);
+}
+
+static void kMeasureProcessorSpeed(const char * pcParameterBuffer)
+{
+    int i;
+    QWORD qwLastTSC, qwTotalTSC = 0;
+
+    kPrintf("Now Measuring.");
+
+    kDisableInterrupt();
+    for(i = 0; i < 200; i++)
+    {
+        qwLastTSC = kReadTSC();
+        kWaitUsingDirectPIT(MSTOCOUNT(50));
+        qwTotalTSC += kReadTSC() - qwLastTSC;
+
+        kPrintf(".");
+    }
+    kInitializePIT(MSTOCOUNT(1), TRUE);
+    kEnableInterrupt();
+    kPrintf("\nCPU Speed = %d MHz\n", qwTotalTSC / 10 / 1000/ 1000);
+}
+
+static void kShowDateAndTime(const char * pcParameterBuffer)
+>>>>>>> master
 {
     BYTE bSecond, bMinute, bHour;
     BYTE bDayOfWeek, bDayOfMonth, bMonth;
     WORD wYear;
 
+<<<<<<< HEAD
     kReadRTCTime( &bHour, &bMinute, &bSecond );
     kReadRTCDate( &wYear, &bMonth, &bDayOfMonth, &bDayOfWeek );
     
     kPrintf( "Date: %d/%d/%d %s, ", wYear, bMonth, bDayOfMonth,
              kConvertDayOfWeekToString( bDayOfWeek ) );
     kPrintf( "Time: %d:%d:%d\n", bHour, bMinute, bSecond );
+=======
+    kReadRTCTime(&bHour, &bMinute, &bSecond);
+    kReadRTCDate(&wYear, &bMonth, &bDayOfMonth, &bDayOfWeek);
+
+    kPrintf("Date: %d/%d/%d %s, ", wYear, bMonth, bDayOfMonth, kConvertDayOfWeekToString(bDayOfWeek));
+    kPrintf("Time : %d:%d:%d\n", bHour, bMinute, bSecond);
+>>>>>>> master
 }
 
 static void kTestTask1( void )
@@ -529,7 +640,10 @@ static void kTestTask1( void )
         
         kSchedule();
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     kExitTask();
 }
 
@@ -551,7 +665,11 @@ static void kTestTask2( void )
         pstScreen[ iOffset ].bAttribute = ( iOffset % 15 ) + 1;
         i++;
         
+<<<<<<< HEAD
         //kSchedule();
+=======
+        kSchedule();
+>>>>>>> master
     }
 }
 
@@ -594,6 +712,7 @@ static void kCreateTestTask( const char* pcParameterBuffer )
         break;
     }    
 }   
+<<<<<<< HEAD
 static void kChangeTaskPriority( const char* pcParameterBuffer )
 {
     PARAMETERLIST stList;
@@ -654,10 +773,63 @@ static void kShowTaskList( const char* pcParameterBuffer )
             kPrintf( "[%d] Task ID[0x%Q], Priority[%d], Flags[0x%Q]\n", 1 + iCount++,
                      pstTCB->stLink.qwID, GETPRIORITY( pstTCB->qwFlags ), 
                      pstTCB->qwFlags);
+=======
+
+static void kChangeTaskPriority(const char * pcParameterBuffer)
+{
+    PARAMETERLIST stList;
+    char vcID[30];
+    char vcPriority[30];
+    QWORD qwID;
+    BYTE bPriority;
+
+    kInitializeParameter(&stList, pcParameterBuffer);
+    kGetNextParameter(&stList, vcID);
+    kGetNextParameter(&stList, vcPriority);
+
+    if(kMemCmp(vcID, "0x", 2) == 0)
+        qwID= kAToI(vcID+2, 16);
+    else
+        qwID = kAToI(vcID, 10);
+    
+    bPriority = kAToI(vcPriority, 10);
+
+    kPrintf("Change Task Priority ID [0x%q] Priority[%d] ", qwID, bPriority);
+    if(kChangePriority(qwID, bPriority) == TRUE)
+        kPrintf("Success\n");
+    else
+        kPrintf("Fail\n");
+}
+
+static void kShowTaskList(const char * pcParameterBuffer)
+{
+    int i;
+    TCB * pstTCB;
+    int iCount = 0;
+
+    kPrintf("========== Task Total Count [%d] ==========\n", kGetTaskCount());
+    for(i = 0; i < TASK_MAXCOUNT; i++)
+    {
+        pstTCB = kGetTCBInTCBPool(i);
+        if((pstTCB->stLink.qwID >> 32) != 0)
+        {
+            if((iCount != 0) && ((iCount % 10) == 0))
+            {
+                kPrintf("Press any key to continue...('q' is exit) : ");
+                if(kGetCh() == 'q')
+                {
+                    kPrintf("\n");
+                    break;
+                }
+                kPrintf("\n");
+            }
+            kPrintf("[%d] Task ID[0x%Q], Priority[%d], Flags[0x%Q]\n", 1 + iCount++, pstTCB->stLink.qwID, GETPRIORITY(pstTCB->qwFlags), pstTCB->qwFlags);
+>>>>>>> master
         }
     }
 }
 
+<<<<<<< HEAD
 static void kKillTask( const char* pcParameterBuffer )
 {
     PARAMETERLIST stList;
@@ -690,4 +862,30 @@ static void kKillTask( const char* pcParameterBuffer )
 static void kCPULoad( const char* pcParameterBuffer )
 {
     kPrintf( "Processor Load : %d%%\n", kGetProcessorLoad() );
+=======
+static void kKillTask(const char * pcParameterBuffer)
+{
+    PARAMETERLIST stList;
+    char vcID[30];
+    QWORD qwID;
+
+    kInitializeParameter(&stList, pcParameterBuffer);
+    kGetNextParameter(&stList, vcID);
+
+    if(kMemCmp(vcID, "0x", 2) == 0)
+        qwID = kAToI(vcID + 2, 16);
+    else
+        qwID = kAToI(vcID, 10);
+
+    kPrintf("Kill Task ID [0x%q] ", qwID);
+    if(kEndTask(qwID) == TRUE)
+        kPrintf("Success\n");
+    else
+        kPrintf("Fail\n");
+}
+
+static void kCPULoad(const char* pcParameterBuffer)
+{
+    kPrintf("Processor Load : %d%%\n", kGetProcessorLoad());
+>>>>>>> master
 }
