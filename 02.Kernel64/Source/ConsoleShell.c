@@ -6,6 +6,7 @@
 #include "RTC.h"
 #include "AssemblyUtility.h"
 #include "Task.h"
+#include "Synchronization.h"
 
 SHELLCOMMANDENTRY gs_vstCommandTable[] =
     {
@@ -17,14 +18,15 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"hellow", "Welcome OS", kHellow},       //Dummy
         {"student", "We are student", kStudent}, //Dummy
 		{"raisefault", "page or protection fault occur", checka},
-        { "wait", "Wait ms Using PIT, ex)wait 100(ms)", kWaitUsingPIT },
-        { "rdtsc", "Read Time Stamp Counter", kReadTimeStampCounter },
-        { "cpuspeed", "Measure Processor Speed", kMeasureProcessorSpeed },
-        { "date", "Show Date And Time", kShowDateAndTime },
-        { "createtask", "Create Task, ex)createtask 1(type) 10(count)", kCreateTestTask },
-        { "tasklist", "Show Task List", kShowTaskList },
-        { "killtask", "End Task, ex)killtask 1(ID)", kKillTask },
-        { "cpuload", "Show Processor Load", kCPULoad },
+        {"wait", "Wait ms Using PIT, ex)wait 100(ms)", kWaitUsingPIT },
+        {"rdtsc", "Read Time Stamp Counter", kReadTimeStampCounter },
+        {"cpuspeed", "Measure Processor Speed", kMeasureProcessorSpeed },
+        {"date", "Show Date And Time", kShowDateAndTime },
+        {"createtask", "Create Task, ex)createtask 1(type) 10(count)", kCreateTestTask },
+        {"tasklist", "Show Task List", kShowTaskList },
+        {"killtask", "End Task, ex)killtask 1(ID)", kKillTask },
+        {"cpuload", "Show Processor Load", kCPULoad },
+        {"testMutex", "Test Mutex Function", kTestMutex},
 };
 
 void kStartConsoleShell(void)
@@ -663,7 +665,9 @@ static void kKillTask( const char* pcParameterBuffer )
     PARAMETERLIST stList;
     char vcID[ 30 ];
     QWORD qwID;
-    
+    TCB* pstTCB;
+    int i;
+
     kInitializeParameter( &stList, pcParameterBuffer );
     kGetNextParameter( &stList, vcID );
     
@@ -675,19 +679,83 @@ static void kKillTask( const char* pcParameterBuffer )
     {
         qwID = kAToI( vcID, 10 );
     }
-    
-    kPrintf( "Kill Task ID [0x%q] ", qwID );
-    if( kEndTask( qwID ) == TRUE )
+    if(qwID != 0xFFFFFFFF)
     {
-        kPrintf( "Success\n" );
+        kPrintf( "Kill Task ID [0x%q] ", qwID );
+        if( kEndTask( qwID ) == TRUE )
+        {
+            kPrintf( "Success\n" );
+        }
+        else
+        {
+            kPrintf( "Fail\n" );
+        }
     }
     else
     {
-        kPrintf( "Fail\n" );
+        for(i = 2; i < TASK_MAXCOUNT; i++)
+        {
+            pstTCB = kGetTCBInTCBPool(i);
+            qwID = pstTCB->stLink.qwID;
+            if((qwID >> 32) != 0)
+            {
+                kPrintf("Kil Task ID [0x%q]", qwID);
+                if(kEndTask(qwID) == TRUE)
+                {
+                    kPrintf( "Success\n" );
+                }
+                else
+                {
+                    kPrintf( "Fail\n" );
+                }
+            }
+        }
     }
 }
 
 static void kCPULoad( const char* pcParameterBuffer )
 {
     kPrintf( "Processor Load : %d%%\n", kGetProcessorLoad());
+}
+
+static MUTEX gs_stMutex;
+static volatile QWORD gs_qwAdder;
+
+static void kPrintNumberTask(void)
+{
+    int i,j;
+    QWORD qwTickCount;
+
+    qwTickCount = kGetTickCount();
+    while((kGetTickCount() - qwTickCount) < 50)
+        kSchedule();
+
+    for(i = 0; i < 5; i++)
+    {
+        kLock(&(gs_stMutex));
+        kPrintf("Task ID [0x%Q] Value[%d]\n", kGetRunningTask()->stLink.qwID, gs_qwAdder);
+        gs_qwAdder += 1;
+        kUnlock(&(gs_stMutex));
+
+        for(j = 0; j < 30000; j++);
+    }
+    qwTickCount = kGetTickCount();
+    while((kGetTickCount() - qwTickCount) < 1000)
+        kSchedule();
+    kExitTask();
+}
+
+static void kTestMutex(const char * pcParameterBuffer)
+{
+    int i;
+    gs_qwAdder = 1;
+
+    kInitializeMutex(&gs_stMutex);
+
+    for(i = 0; i < 3; i++)
+    {
+        kCreateTask(TASK_FLAGS_LOW, (QWORD)kPrintNumberTask);
+    }
+    kPrintf("Wait Until %d Task End...\n", i);
+    kGetCh();
 }
