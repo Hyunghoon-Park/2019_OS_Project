@@ -2,11 +2,7 @@
 
 SECTION .text     
 
-<<<<<<< HEAD
 extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler, kPageFault
-=======
-extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler
->>>>>>> master
 extern kTimerHandler
 
 global kISRDivideError, kISRDebug, kISRNMI, kISRBreakPoint, kISROverflow
