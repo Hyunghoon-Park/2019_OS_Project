@@ -63,14 +63,6 @@ void kInitializePageTables(void)
 		PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS, 0);
 		dwMappingAddress += PAGE_DEFAULTSIZE;
 	}
-	for( i = 0 ; i < PAGE_MAXENTRYCOUNT * 64 ; i++ )
-	{
-		kSetPageEntryData( &( pstPDEntry[ i ] ), 
-				( i * ( PAGE_DEFAULTSIZE >> 20 ) ) >> 12, dwMappingAddress, 
-				PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS, 0 );
-		dwMappingAddress += PAGE_DEFAULTSIZE;
-	}	
-
 }
 
 void kSetPageEntryData(PTENTRY * pstEntry, DWORD dwUpperBaseAddress, DWORD dwLowerBaseAddress, DWORD dwLowerFlags, DWORD dwUpperFlags)

@@ -26,7 +26,7 @@ void kPageFault(int p, QWORD qwErrorCode)
     int iX, iY;
     long *PTE = (long*)0x142000;
     int pt = (p >> 12);
-    char vcBuffer[10] = {0,};
+    char vcBuffer[7] = {0,};
     int num = 0, mask = 0x00f00000;
 
     for(int i = 0; i < 6; i++)
@@ -51,6 +51,7 @@ void kPageFault(int p, QWORD qwErrorCode)
         kPrintf("\n====================================================\n");
         PTE[pt] = PTE[pt] | 0x1;
         invlpg(PTE);
+        kPrintf("%Q\n", qwErrorCode);
     }
     else if((qwErrorCode & 2) == 2)
     {
@@ -64,6 +65,7 @@ void kPageFault(int p, QWORD qwErrorCode)
             kPrintf("%c", vcBuffer[i]);
         kPrintf("\n====================================================\n");
         PTE[pt] = PTE[pt] | 0x2;
+        kPrintf("%Q\n", qwErrorCode);
     }
 }
 
