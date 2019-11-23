@@ -24,7 +24,6 @@ struct kListItemExampleStruct
 typedef struct kListManagerStruct
 {
     int iItemCount;
-
     void* pvHeader;
     void* pvTail;
 } LIST;

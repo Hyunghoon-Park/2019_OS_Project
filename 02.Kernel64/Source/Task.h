@@ -55,7 +55,6 @@
 #define GETTCBOFFSET( x )       ( ( x ) & 0xFFFFFFFF )
 #define GETTCBFROMTHREADLINK( x )   ( TCB* ) ( ( QWORD ) ( x ) - offsetof( TCB, \
         stThreadLink ) )
-
 #pragma pack( push, 1 )
 
 typedef struct kContextStruct
@@ -79,6 +78,9 @@ typedef struct kTaskControlBlockStruct
 
     void* pvStackAddress;
     QWORD qwStackSize;
+
+    int pass;
+    int stride;
 } TCB;
 
 typedef struct kTCBPoolManagerStruct
@@ -136,8 +138,9 @@ BOOL kIsTaskExist( QWORD qwID );
 QWORD kGetProcessorLoad( void );
 static TCB* kGetProcessByThread( TCB* pstThread );
 
-
 void kIdleTask(void);
 void kHaltProcessorByLoad(void);
+static TCB* kStrideNextToRun(void);
 
+static int TOTALTICKET = 100000;
 #endif

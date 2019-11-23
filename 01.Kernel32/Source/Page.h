@@ -31,5 +31,5 @@ typedef struct kPageTableEntryStruct
 void kInitializePageTables(void);
 void kSetPageEntryData(PTENTRY* pstEntry, DWORD dwUpperBaseAddress, DWORD dwLowerBaseAddress, DWORD dwLowerFlags, DWORD dwUppesFlags);
 
-#endif /*__PAGE_H__*/
+#endif
 

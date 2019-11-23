@@ -112,8 +112,19 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
 
     kInitializeList(&(pstTask->stChildThreadList));
     bPreviousFlag = kLockForSystemData();
-    
+
     kAddTaskToReadyList( pstTask );
+
+    //set pass, stride
+    pstTask->pass = 0;
+    if((int)qwFlags == TASK_FLAGS_MEDIUM)
+        pstTask->stride = 200;
+    else if((int)qwFlags == TASK_FLAGS_LOW)
+        pstTask->stride = 100;
+    else if((int)qwFlags == TASK_FLAGS_LOWEST)
+        pstTask->stride = 10;
+    
+
     kUnlockForSystemData(bPreviousFlag);
 
     return pstTask;
@@ -197,9 +208,9 @@ TCB* kGetRunningTask( void )
 
 static TCB* kGetNextTaskToRun( void )
 {
-   TCB* pstTarget = NULL;
+    TCB* pstTarget = NULL, *pstRunningTask = kGetRunningTask();
     int iTaskCount, i, j;
-
+    
     for( j = 0 ; j < 2 ; j++ )
     {
         for( i = 0 ; i < TASK_MAXREADYLISTCOUNT ; i++ )
@@ -208,10 +219,9 @@ static TCB* kGetNextTaskToRun( void )
             
             if( gs_stScheduler.viExecuteCount[ i ] < iTaskCount )
             {
-                pstTarget = ( TCB* ) kRemoveListFromHeader( 
-                                        &( gs_stScheduler.vstReadyList[ i ] ) );
-                gs_stScheduler.viExecuteCount[ i ]++;
-                break;            
+                pstTarget = ( TCB* ) kRemoveListFromHeader(&( gs_stScheduler.vstReadyList[ i ] ) );
+                gs_stScheduler.viExecuteCount[i]++;
+                break;
             }
             else
             {
@@ -223,8 +233,44 @@ static TCB* kGetNextTaskToRun( void )
         {
             break;
         }
-    }    
+    }
     return pstTarget;
+}
+
+
+//FOr Stride Scheduler
+static TCB* kStrideNextToRun(){
+    TCB* pstCurrent = NULL;
+    int i, j;
+    TCB* pstMinTask = NULL;
+
+    for(i = 0; i < TASK_MAXREADYLISTCOUNT; i++)
+    {
+        pstCurrent = (TCB*)kGetHeaderFromList(&(gs_stScheduler.vstReadyList[i]));
+        while(1)
+        {
+            if(pstCurrent == NULL)
+                break;
+            if(pstMinTask == NULL || pstCurrent->pass < pstMinTask->pass)
+            {
+                j = i;
+                pstMinTask = pstCurrent;
+            }
+            if(pstCurrent == kGetTailFromList(&(gs_stScheduler.vstReadyList[i])))
+                break;
+            pstCurrent = (TCB*)kGetNextFromList(&gs_stScheduler.vstReadyList[i], pstCurrent);
+            
+        }
+    }
+    
+    if(pstMinTask != NULL)
+    {
+        pstMinTask = (TCB*)kRemoveList(&(gs_stScheduler.vstReadyList[j]),pstMinTask->stLink.qwID);
+        pstMinTask->pass += pstMinTask->stride;
+        MIN = pstMinTask->pass;
+    }
+
+    return pstMinTask;
 }
 
 static BOOL kAddTaskToReadyList( TCB* pstTask )
@@ -313,7 +359,9 @@ void kSchedule( void )
     
     bPreviousFlag = kLockForSystemData();
 
-    pstNextTask = kGetNextTaskToRun();
+    //Stride Schedule, Lottery Schedule, Round Robin Schedule
+    pstNextTask = kStrideNextToRun();
+    //pstNextTask = kGetNextTaskToRun();
     if( pstNextTask == NULL )
     {
         kUnlockForSystemData( bPreviousFlag );
@@ -322,7 +370,7 @@ void kSchedule( void )
     
     pstRunningTask = gs_stScheduler.pstRunningTask; 
     gs_stScheduler.pstRunningTask = pstNextTask;
-    
+
     if( ( pstRunningTask->qwFlags & TASK_FLAGS_IDLE ) == TASK_FLAGS_IDLE )
     {
         gs_stScheduler.qwSpendProcessorTimeInIdleTask += 

@@ -54,4 +54,5 @@ static void kCreateThreadTask(void);
 static void kTestThread(const char * pcParameterBuffer);
 static void kShowMatrix(const char * pcParameterBuffer);
 
+static int CURRENT_PASS = 0;
 #endif

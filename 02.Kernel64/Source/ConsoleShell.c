@@ -26,9 +26,11 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"tasklist", "Show Task List", kShowTaskList },
         {"killtask", "End Task, ex)killtask 1(ID)", kKillTask },
         {"cpuload", "Show Processor Load", kCPULoad },
-        {"testMutex", "Test Mutex Function", kTestMutex},
+        {"testmutex", "Test Mutex Function", kTestMutex},
         {"testthread", "Test Thread And Process Function", kTestThread},
         {"showmatrix", "Show Matrix Screen", kShowMatrix},
+        { "settimer", "Set PIT Controller Counter0, ex)settimer 10(ms) 1(periodic)", 
+                kSetTimer },
 };
 
 void kStartConsoleShell(void)
@@ -547,14 +549,15 @@ static void kTestTask2( void )
     iOffset = ( pstRunningTask->stLink.qwID & 0xFFFFFFFF ) * 2;
     iOffset = CONSOLE_WIDTH * CONSOLE_HEIGHT - 
         ( iOffset % ( CONSOLE_WIDTH * CONSOLE_HEIGHT ) );
-
+    
     while( 1 )
     {
         pstScreen[ iOffset ].bCharactor = vcData[ i % 4 ];
         pstScreen[ iOffset ].bAttribute = ( iOffset % 15 ) + 1;
         i++;
-        
-        //kSchedule();
+        // if(pstRunningTask->stride == 99999)
+        //     kPrintf("%d %d\n",pstRunningTask->stLink.qwID, pstRunningTask->pass);
+        kSchedule();
     }
 }
 
@@ -572,6 +575,7 @@ static void kCreateTestTask( const char* pcParameterBuffer )
     switch( kAToI( vcType, 10 ) )
     {
     case 1:
+    
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOW | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask1 ) == NULL )
@@ -583,8 +587,17 @@ static void kCreateTestTask( const char* pcParameterBuffer )
         kPrintf( "Task1 %d Created\n", i );
         break;
         
+    //Set Timer 100ms , periodic 1 -> when do stride schedule
     case 2:
-    default:
+        kInitializePIT( MSTOCOUNT( 100 ), 1 );
+        kPrintf( "Time = %d ms, Periodic = %d Change Complete\n", 100, 1 );
+        for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
+        {    
+            if( kCreateTask( TASK_FLAGS_MEDIUM | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
+            {
+                break;
+            }
+        }
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOW | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
@@ -592,11 +605,18 @@ static void kCreateTestTask( const char* pcParameterBuffer )
                 break;
             }
         }
-        
+        for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
+        {    
+            if( kCreateTask( TASK_FLAGS_LOWEST | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
+            {
+                break;
+            }
+        }
         kPrintf( "Task2 %d Created\n", i );
         break;
-    }    
+    }   
 }   
+
 static void kChangeTaskPriority( const char* pcParameterBuffer )
 {
     PARAMETERLIST stList;
