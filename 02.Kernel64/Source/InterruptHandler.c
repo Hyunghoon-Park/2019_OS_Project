@@ -28,6 +28,7 @@ void kPageFault(int p, QWORD qwErrorCode)
     int pt = (p >> 12);
     char vcBuffer[7] = {0,};
     int num = 0, mask = 0x00f00000;
+    DWORD dwMappingAddress = 0;
 
     for(int i = 0; i < 6; i++)
     {
@@ -36,9 +37,9 @@ void kPageFault(int p, QWORD qwErrorCode)
         else
             vcBuffer[i] = 87 + num;
         mask >>= 4;
-    }
+    }  
 
-    if((qwErrorCode & 1) == 0)
+    if((pt == 511) && ((qwErrorCode & 1) == 0))
     {
         kGetCursor(&iX, &iY);
         kSetCursor(0, iY);
@@ -52,7 +53,7 @@ void kPageFault(int p, QWORD qwErrorCode)
         PTE[pt] = PTE[pt] | 0x1;
         invlpg(PTE);
     }
-    else if((qwErrorCode & 2) == 2)
+    else if((pt == 511) && ((qwErrorCode & 2) == 2))
     {
         kGetCursor(&iX, &iY);
         kSetCursor(0, iY);
@@ -64,7 +65,24 @@ void kPageFault(int p, QWORD qwErrorCode)
             kPrintf("%c", vcBuffer[i]);
         kPrintf("\n====================================================\n");
         PTE[pt] = PTE[pt] | 0x2;
-    }
+    }/*
+    else
+    {
+        PDENTRY* pstPDEntry = (PDENTRY*)0x102000;
+
+        for(int i = 0; i < PAGE_MAXENTRYCOUNT * 64; i++)
+        {
+            kSetPageEntryData(&(pstPDEntry[i]), (i * (PAGE_DEFAULTSIZE >> 20)) >> 12, dwMappingAddress,
+            PAGE_FLAGS_DEFAULT | PAGE_FLAGS_PS, 0);
+            dwMappingAddress += PAGE_DEFAULTSIZE;
+        }
+    }*/
+}
+
+void kSetPageEntryData(PTENTRY * pstEntry, DWORD dwUpperBaseAddress, DWORD dwLowerBaseAddress, DWORD dwLowerFlags, DWORD dwUpperFlags)
+{
+	pstEntry->dwAttributeAndLowerBaseAddress = dwLowerBaseAddress | dwLowerFlags;
+	pstEntry->dwUpperBaseAddressAndEXB = (dwUpperBaseAddress & 0xFF) | dwUpperFlags;
 }
 
 void kCommonInterruptHandler( int iVectorNumber )
@@ -123,6 +141,6 @@ void kTimerHandler( int iVectorNumber )
     kDecreaseProcessorTime();
     if( kIsProcessorTimeExpired() == TRUE )
     {
-        kScheduleInInterrupt();
+        //kScheduleInInterrupt();
     }
 }
