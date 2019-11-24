@@ -1,8 +1,44 @@
 #include "Task.h"
 #include "Descriptor.h"
+#define A 16807L
+#define M 2147483647L
 
 static SCHEDULER gs_stScheduler;
 static TCBPOOLMANAGER gs_stTCBPoolManager;
+static int strm = 1;
+static int sum = 0;
+static int findT;
+static unsigned int gs_qwRandomValue;
+
+static long ln[16] = {
+    0L, 1973272912L, 747177549L, 20464843L, 640830765L, 1098742207L,
+    78126602L, 84743774L, 831312807L, 124667236L, 1172177002L,
+    1124933064L, 1223960546L, 1878892440L, 1449793615L, 553303732L
+};
+
+long ranf(){
+    short *p, *q, k;
+    long hi, lo;
+    p = (short*)&ln[strm];
+    hi = *(p+1) * A;
+    *(p+1) = 0;
+    lo = ln[strm] * A;
+    p = (short*)&lo;
+    hi += *(p+1);
+    q = (short*)&hi;
+    *(p+1) = *q & 0x7FFF;
+    k = *(q+1) << 1;
+    if(*q & 0x7FFF){
+        k++;
+    }
+    lo -= M;
+    lo += k;
+    if(lo < 0){
+        lo += M;
+    }
+    ln[strm] = lo;
+    return (long)lo * 4 - 10;
+}
 
 static void kInitializeTCBPool( void )
 {
@@ -115,15 +151,42 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
 
     kAddTaskToReadyList( pstTask );
 
-    //set pass, stride
+    //Lottery Scheduler
+    if(qwFlags & TASK_FLAGS_HIGHEST){
+        pstTask->ticket = 97;
+        sum += 97;
+    }
+    else if(qwFlags & TASK_FLAGS_HIGH)
+    {
+        pstTask->ticket = 46;
+        sum += 46;
+    }
+    else if(qwFlags & TASK_FLAGS_MEDIUM)
+    {
+        pstTask->ticket = 15;
+        sum += 15;
+    }
+    else if(qwFlags & TASK_FLAGS_LOW)
+    {
+        pstTask->ticket = 5;
+        sum += 5;
+    }
+    else if(qwFlags & TASK_FLAGS_LOWEST)
+    {
+        pstTask->ticket = 1;
+        sum += 1;
+    }
+    /*
+    //Stride Scheduler
     pstTask->pass = 0;
+    pstTask->count = 0;
     if((int)qwFlags == TASK_FLAGS_MEDIUM)
-        pstTask->stride = 200;
+        pstTask->stride = TOTALTICKET / 500;
     else if((int)qwFlags == TASK_FLAGS_LOW)
-        pstTask->stride = 100;
+        pstTask->stride = TOTALTICKET / 1000;
     else if((int)qwFlags == TASK_FLAGS_LOWEST)
-        pstTask->stride = 10;
-    
+        pstTask->stride = TOTALTICKET / 10000;
+    */
 
     kUnlockForSystemData(bPreviousFlag);
 
@@ -238,7 +301,7 @@ static TCB* kGetNextTaskToRun( void )
 }
 
 
-//FOr Stride Scheduler
+//For Stride Scheduler
 static TCB* kStrideNextToRun(){
     TCB* pstCurrent = NULL;
     int i, j;
@@ -267,7 +330,6 @@ static TCB* kStrideNextToRun(){
     {
         pstMinTask = (TCB*)kRemoveList(&(gs_stScheduler.vstReadyList[j]),pstMinTask->stLink.qwID);
         pstMinTask->pass += pstMinTask->stride;
-        MIN = pstMinTask->pass;
     }
 
     return pstMinTask;
@@ -322,6 +384,122 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     bPreviousFlag = kLockForSystemData();
     
     pstTarget = gs_stScheduler.pstRunningTask;
+
+    //Lottery Scheduler
+    if( pstTarget->stLink.qwID == qwTaskID )
+    {
+        if(bPriority & TASK_FLAGS_HIGHEST){
+            sum = sum - pstTarget->ticket;
+            pstTarget->ticket = 97;
+            sum += 97;
+        }
+        else if(bPriority & TASK_FLAGS_HIGH)
+        {
+            sum = sum - pstTarget->ticket;
+            pstTarget->ticket = 46;
+            sum += 46;
+        }
+        else if(bPriority & TASK_FLAGS_MEDIUM)
+        {
+            sum = sum - pstTarget->ticket;
+            pstTarget->ticket = 15;
+            sum += 15;
+        }
+        else if(bPriority & TASK_FLAGS_LOW)
+        {
+            sum = sum - pstTarget->ticket;
+            pstTarget->ticket = 5;
+            sum += 5;
+        }
+        else if(bPriority & TASK_FLAGS_LOWEST)
+        {
+            sum = sum - pstTarget->ticket;
+            pstTarget->ticket = 1;
+            sum += 1;
+        }
+        SETPRIORITY( pstTarget->qwFlags, bPriority );
+    }
+    else
+    {
+        pstTarget = kRemoveTaskFromReadyList( qwTaskID );
+        if (pstTarget == NULL)
+        {
+            pstTarget = kGetTCBInTCBPool(GETTCBOFFSET(qwTaskID));
+            if (pstTarget != NULL)
+            {
+                if (bPriority & TASK_FLAGS_HIGHEST)
+                {
+                    sum = sum - pstTarget->ticket;
+                    pstTarget->ticket = 97;
+                    sum += 97;
+                }
+                else if (bPriority & TASK_FLAGS_HIGH)
+                {
+                    sum = sum - pstTarget->ticket;
+                    pstTarget->ticket = 46;
+                    sum += 46;
+                }
+                else if (bPriority & TASK_FLAGS_MEDIUM)
+                {
+                    sum = sum - pstTarget->ticket;
+                    pstTarget->ticket = 15;
+                    sum += 15;
+                }
+                else if (bPriority & TASK_FLAGS_LOW)
+                {
+                    sum = sum - pstTarget->ticket;
+                    pstTarget->ticket = 5;
+                    sum += 5;
+                }
+                else if (bPriority & TASK_FLAGS_LOWEST)
+                {
+                    sum = sum - pstTarget->ticket;
+                    pstTarget->ticket = 1;
+                    sum += 1;
+                }
+                SETPRIORITY(pstTarget->qwFlags, bPriority);
+            }
+        }
+        else
+        {
+            if (bPriority & TASK_FLAGS_HIGHEST)
+            {
+                sum = sum - pstTarget->ticket;
+                pstTarget->ticket = 97;
+                sum += 97;
+            }
+            else if (bPriority & TASK_FLAGS_HIGH)
+            {
+                sum = sum - pstTarget->ticket;
+                pstTarget->ticket = 46;
+                sum += 46;
+            }
+            else if (bPriority & TASK_FLAGS_MEDIUM)
+            {
+                sum = sum - pstTarget->ticket;
+                pstTarget->ticket = 15;
+                sum += 15;
+            }
+            else if (bPriority & TASK_FLAGS_LOW)
+            {
+                sum = sum - pstTarget->ticket;
+                pstTarget->ticket = 5;
+                sum += 5;
+            }
+            else if (bPriority & TASK_FLAGS_LOWEST)
+            {
+                sum = sum - pstTarget->ticket;
+                pstTarget->ticket = 1;
+                sum += 1;
+            }
+            SETPRIORITY(pstTarget->qwFlags, bPriority);
+            kAddTaskToReadyList(pstTarget);
+        }
+    }
+    kUnlockForSystemData(bPreviousFlag);
+    return TRUE;
+
+    /* BASIC
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         SETPRIORITY( pstTarget->qwFlags, bPriority );
@@ -344,13 +522,14 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
         }
     }
     kUnlockForSystemData(bPreviousFlag);
-    return TRUE;    
+    return TRUE;*/
 }
 
 void kSchedule( void )
 {
     TCB* pstRunningTask, * pstNextTask;
     BOOL bPreviousFlag;
+    int i, j, iTaskCount;
     
     if( kGetReadyTaskCount() < 1 )
     {
@@ -360,8 +539,25 @@ void kSchedule( void )
     bPreviousFlag = kLockForSystemData();
 
     //Stride Schedule, Lottery Schedule, Round Robin Schedule
-    pstNextTask = kStrideNextToRun();
-    //pstNextTask = kGetNextTaskToRun();
+    //pstNextTask = kStrideNextToRun();
+    //BASIC : pstNextTask = kGetNextTaskToRun();
+    
+    //Lottery
+     gs_qwRandomValue = ranf() % sum + 1;
+    iTaskCount = kGetReadyTaskCount();
+    findT = 0;
+    for(i = 0; i < iTaskCount; i++){
+        pstNextTask = kGetNextTaskToRun();
+        findT += pstNextTask->ticket;
+        if (gs_qwRandomValue >= findT)
+        {
+            break;
+        }
+        else{
+            kAddTaskToReadyList(pstNextTask);
+        }
+    }
+
     if( pstNextTask == NULL )
     {
         kUnlockForSystemData( bPreviousFlag );

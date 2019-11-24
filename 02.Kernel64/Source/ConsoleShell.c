@@ -29,8 +29,9 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"testmutex", "Test Mutex Function", kTestMutex},
         {"testthread", "Test Thread And Process Function", kTestThread},
         {"showmatrix", "Show Matrix Screen", kShowMatrix},
-        { "settimer", "Set PIT Controller Counter0, ex)settimer 10(ms) 1(periodic)", 
+        {"settimer", "Set PIT Controller Counter0, ex)settimer 10(ms) 1(periodic)", 
                 kSetTimer },
+        {"setpriority", "change priority ex) setpriority 1 1", kChangeTaskPriority},
 };
 
 void kStartConsoleShell(void)
@@ -555,8 +556,10 @@ static void kTestTask2( void )
         pstScreen[ iOffset ].bCharactor = vcData[ i % 4 ];
         pstScreen[ iOffset ].bAttribute = ( iOffset % 15 ) + 1;
         i++;
-        // if(pstRunningTask->stride == 99999)
-        //     kPrintf("%d %d\n",pstRunningTask->stLink.qwID, pstRunningTask->pass);
+        
+        
+        pstRunningTask->count++;
+        
         kSchedule();
     }
 }
@@ -589,6 +592,7 @@ static void kCreateTestTask( const char* pcParameterBuffer )
         
     //Set Timer 100ms , periodic 1 -> when do stride schedule
     case 2:
+        /*
         kInitializePIT( MSTOCOUNT( 100 ), 1 );
         kPrintf( "Time = %d ms, Periodic = %d Change Complete\n", 100, 1 );
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
@@ -597,7 +601,7 @@ static void kCreateTestTask( const char* pcParameterBuffer )
             {
                 break;
             }
-        }
+        }*/
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOW | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
@@ -605,13 +609,14 @@ static void kCreateTestTask( const char* pcParameterBuffer )
                 break;
             }
         }
+        /*
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOWEST | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
             {
                 break;
             }
-        }
+        }*/
         kPrintf( "Task2 %d Created\n", i );
         break;
     }   
