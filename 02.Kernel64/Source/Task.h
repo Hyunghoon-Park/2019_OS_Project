@@ -79,8 +79,11 @@ typedef struct kTaskControlBlockStruct
     void* pvStackAddress;
     QWORD qwStackSize;
 
+    //For Schedule
     int pass;
     int stride;
+    int count;
+    int ticket;
 } TCB;
 
 typedef struct kTCBPoolManagerStruct
@@ -140,7 +143,8 @@ static TCB* kGetProcessByThread( TCB* pstThread );
 
 void kIdleTask(void);
 void kHaltProcessorByLoad(void);
-static TCB* kStrideNextToRun(void);
 
+//For Stride Schedule, Lottery Schedule
+static TCB* kStrideNextToRun(void);
 static int TOTALTICKET = 100000;
 #endif
