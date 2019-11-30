@@ -1,6 +1,7 @@
 [BITS 64]
 
-global kInPortByte, kOutPortByte, kLoadGDTR, kLoadTR, kLoadIDTR
+global kInPortByte, kOutPortByte, kInPortWord, kOutPortWord
+global kLoadGDTR, kLoadTR, kLoadIDTR
 global kEnableInterrupt, kDisableInterrupt, kReadRFLAGS
 global kReadTSC
 global kSwitchContext, kHlt, kTestAndSet
@@ -8,26 +9,45 @@ global kSwitchContext, kHlt, kTestAndSet
 SECTION .text
 
 kInPortByte:
-	push rdx
-
-	mov rdx, rdi
-	mov rax, 0
-	in al, dx
-
-	pop rdx
-	ret
+    push rdx       
+    mov rdx, rdi    
+    mov rax, 0      
+    in al, dx       
+                    
+    pop rdx         
+    ret            
 
 kOutPortByte:
-	push rdx
-	push rax
+    push rdx        
+    push rax        
+    
+    mov rdx, rdi    
+    mov rax, rsi    
+    out dx, al      
+    pop rax         
+    pop rdx
+    ret      
 
-	mov rdx, rdi
-	mov rax, rsi
-	out dx, al
-
-	pop rax
-	pop rdx
-	ret
+kInPortWord:
+    push rdx        
+                    
+    mov rdx, rdi    
+    mov rax, 0      
+    in ax, dx       
+    pop rdx         
+    ret             
+    
+kOutPortWord:
+    push rdx 
+    push rax 
+    
+    mov rdx, rdi
+    mov rax, rsi
+    out dx, ax  
+                
+    pop rax     
+    pop rdx
+    ret             
 
 kLoadGDTR:
 	lgdt [rdi]

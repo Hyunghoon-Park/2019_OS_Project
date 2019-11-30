@@ -82,7 +82,6 @@ typedef struct kTaskControlBlockStruct
     //For Schedule
     int pass;
     int stride;
-    int count;
     int ticket;
 } TCB;
 
