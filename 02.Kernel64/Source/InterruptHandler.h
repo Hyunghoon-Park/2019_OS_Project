@@ -9,5 +9,6 @@ void kKeyboardHandler(int iVectorNumber);
 static inline void invlpg(void* m);
 void kTimerHandler(int iVectorNumber);
 void kPageFault(int p, QWORD qwErrorCode);
+void kHDDHandler( int iVectorNumber );
 
 #endif

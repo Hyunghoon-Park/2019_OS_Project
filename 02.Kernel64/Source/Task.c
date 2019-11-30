@@ -152,6 +152,7 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
     kAddTaskToReadyList( pstTask );
 
     //Lottery Scheduler
+    /*
     if(qwFlags & TASK_FLAGS_HIGHEST){
         pstTask->ticket = 97;
         sum += 97;
@@ -176,18 +177,16 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
         pstTask->ticket = 1;
         sum += 1;
     }
-    /*
+    
     //Stride Scheduler
     pstTask->pass = 0;
-    pstTask->count = 0;
     if((int)qwFlags == TASK_FLAGS_MEDIUM)
-        pstTask->stride = TOTALTICKET / 500;
+        pstTask->stride = 200;
     else if((int)qwFlags == TASK_FLAGS_LOW)
-        pstTask->stride = TOTALTICKET / 1000;
+        pstTask->stride = 100;
     else if((int)qwFlags == TASK_FLAGS_LOWEST)
-        pstTask->stride = TOTALTICKET / 10000;
+        pstTask->stride = 10;
     */
-
     kUnlockForSystemData(bPreviousFlag);
 
     return pstTask;
@@ -300,7 +299,6 @@ static TCB* kGetNextTaskToRun( void )
     return pstTarget;
 }
 
-
 //For Stride Scheduler
 static TCB* kStrideNextToRun(){
     TCB* pstCurrent = NULL;
@@ -386,6 +384,7 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     pstTarget = gs_stScheduler.pstRunningTask;
 
     //Lottery Scheduler
+    /*
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         if(bPriority & TASK_FLAGS_HIGHEST){
@@ -498,8 +497,8 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     }
     kUnlockForSystemData(bPreviousFlag);
     return TRUE;
-
-    /* BASIC
+    */
+    //BASIC
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         SETPRIORITY( pstTarget->qwFlags, bPriority );
@@ -522,12 +521,12 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
         }
     }
     kUnlockForSystemData(bPreviousFlag);
-    return TRUE;*/
+    return TRUE;
 }
 
 void kSchedule( void )
 {
-    TCB* pstRunningTask, * pstNextTask;
+    TCB* pstRunningTask, * pstNextTask, *pstHeaderTask;
     BOOL bPreviousFlag;
     int i, j, iTaskCount;
     
@@ -540,10 +539,11 @@ void kSchedule( void )
 
     //Stride Schedule, Lottery Schedule, Round Robin Schedule
     //pstNextTask = kStrideNextToRun();
-    //BASIC : pstNextTask = kGetNextTaskToRun();
+    pstNextTask = kGetNextTaskToRun();
     
     //Lottery
-     gs_qwRandomValue = ranf() % sum + 1;
+    /*
+    gs_qwRandomValue = ranf() % sum + 1;
     iTaskCount = kGetReadyTaskCount();
     findT = 0;
     for(i = 0; i < iTaskCount; i++){
@@ -556,7 +556,7 @@ void kSchedule( void )
         else{
             kAddTaskToReadyList(pstNextTask);
         }
-    }
+    }*/
 
     if( pstNextTask == NULL )
     {
