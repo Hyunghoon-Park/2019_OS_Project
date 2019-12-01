@@ -176,13 +176,8 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
     {
         pstTask->ticket = 1;
         sum += 1;
-<<<<<<< HEAD
-    }*/
-    /*
-=======
     }
     
->>>>>>> NEC
     //Stride Scheduler
     pstTask->pass = 0;
     if((int)qwFlags == TASK_FLAGS_MEDIUM)
@@ -503,11 +498,7 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     kUnlockForSystemData(bPreviousFlag);
     return TRUE;
     */
-<<<<<<< HEAD
-    // BASIC
-=======
     //BASIC
->>>>>>> NEC
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         SETPRIORITY( pstTarget->qwFlags, bPriority );
@@ -552,11 +543,7 @@ void kSchedule( void )
     
     //Lottery
     /*
-<<<<<<< HEAD
-     gs_qwRandomValue = ranf() % sum + 1;
-=======
     gs_qwRandomValue = ranf() % sum + 1;
->>>>>>> NEC
     iTaskCount = kGetReadyTaskCount();
     findT = 0;
     for(i = 0; i < iTaskCount; i++){
