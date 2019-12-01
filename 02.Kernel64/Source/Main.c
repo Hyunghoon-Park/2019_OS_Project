@@ -6,6 +6,9 @@
 #include "ConsoleShell.h"
 #include "Task.h"
 #include "PIT.h"
+#include "DynamicMemory.h"
+#include "HardDisk.h"
+#include "FileSystem.h"
 
 void Main(void)
 {
@@ -42,6 +45,11 @@ void Main(void)
 	kPrintf("TCP Pool And Scheduler Initialize...........[Pass]\n");
 	iCursorY++;
 	kInitializeScheduler();
+
+	kPrintf("Dynamic Memory Initialize...................[Pass]\n");
+	iCursorY++;
+	kInitializeDynamicMemory();
+	
 	kInitializePIT(MSTOCOUNT(1),1);
 	
 	kPrintf("Keyboard Activate And Queue Initialize......[    ]");
@@ -65,6 +73,31 @@ void Main(void)
 	kEnableInterrupt();
 	kSetCursor(45,iCursorY++);
 	kPrintf("Pass\n");
+
+	kPrintf("HDD Initialize..............................[    ]");
+	if(kInitializeHDD() == TRUE)
+	{
+		kSetCursor(45, iCursorY++);
+		kPrintf("Pass\n");
+	}
+	else
+	{
+		kSetCursor(45, iCursorY++);
+		kPrintf("Fail\n");
+	}
+	
+	kPrintf("File System Initialize......................[    ]");
+	if(kInitializeFileSystem() == TRUE)
+	{
+		kSetCursor(45, iCursorY++);
+		kPrintf("Pass\n");
+	}
+	else
+	{
+		kSetCursor(45, iCursorY++);
+		kPrintf("Fail\n");
+	}
+	
 
 	kCreateTask(TASK_FLAGS_LOWEST | TASK_FLAGS_THREAD | TASK_FLAGS_SYSTEM | TASK_FLAGS_IDLE, 0, 0, (QWORD)kIdleTask);
 	kStartConsoleShell();

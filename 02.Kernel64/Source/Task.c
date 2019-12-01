@@ -152,6 +152,7 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
     kAddTaskToReadyList( pstTask );
 
     //Lottery Scheduler
+    /*
     if(qwFlags & TASK_FLAGS_HIGHEST){
         pstTask->ticket = 97;
         sum += 97;
@@ -175,7 +176,7 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
     {
         pstTask->ticket = 1;
         sum += 1;
-    }
+    }*/
     /*
     //Stride Scheduler
     pstTask->pass = 0;
@@ -386,6 +387,7 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     pstTarget = gs_stScheduler.pstRunningTask;
 
     //Lottery Scheduler
+    /*
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         if(bPriority & TASK_FLAGS_HIGHEST){
@@ -498,8 +500,8 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     }
     kUnlockForSystemData(bPreviousFlag);
     return TRUE;
-
-    /* BASIC
+    */
+    // BASIC
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         SETPRIORITY( pstTarget->qwFlags, bPriority );
@@ -522,7 +524,7 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
         }
     }
     kUnlockForSystemData(bPreviousFlag);
-    return TRUE;*/
+    return TRUE;
 }
 
 void kSchedule( void )
@@ -540,9 +542,10 @@ void kSchedule( void )
 
     //Stride Schedule, Lottery Schedule, Round Robin Schedule
     //pstNextTask = kStrideNextToRun();
-    //BASIC : pstNextTask = kGetNextTaskToRun();
+    pstNextTask = kGetNextTaskToRun();
     
     //Lottery
+    /*
      gs_qwRandomValue = ranf() % sum + 1;
     iTaskCount = kGetReadyTaskCount();
     findT = 0;
@@ -556,7 +559,7 @@ void kSchedule( void )
         else{
             kAddTaskToReadyList(pstNextTask);
         }
-    }
+    }*/
 
     if( pstNextTask == NULL )
     {
