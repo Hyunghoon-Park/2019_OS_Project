@@ -9,6 +9,10 @@ void kKeyboardHandler(int iVectorNumber);
 static inline void invlpg(void* m);
 void kTimerHandler(int iVectorNumber);
 void kPageFault(int p, QWORD qwErrorCode);
+<<<<<<< HEAD
 void kHDDHandler(int iVectorNumber);
+=======
+void kHDDHandler( int iVectorNumber );
+>>>>>>> NEC
 
 #endif

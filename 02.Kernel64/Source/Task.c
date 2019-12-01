@@ -176,19 +176,22 @@ TCB* kCreateTask( QWORD qwFlags, void* pvMemoryAddress, QWORD qwMemorySize, QWOR
     {
         pstTask->ticket = 1;
         sum += 1;
+<<<<<<< HEAD
     }*/
     /*
+=======
+    }
+    
+>>>>>>> NEC
     //Stride Scheduler
     pstTask->pass = 0;
-    pstTask->count = 0;
     if((int)qwFlags == TASK_FLAGS_MEDIUM)
-        pstTask->stride = TOTALTICKET / 500;
+        pstTask->stride = 200;
     else if((int)qwFlags == TASK_FLAGS_LOW)
-        pstTask->stride = TOTALTICKET / 1000;
+        pstTask->stride = 100;
     else if((int)qwFlags == TASK_FLAGS_LOWEST)
-        pstTask->stride = TOTALTICKET / 10000;
+        pstTask->stride = 10;
     */
-
     kUnlockForSystemData(bPreviousFlag);
 
     return pstTask;
@@ -300,7 +303,6 @@ static TCB* kGetNextTaskToRun( void )
     }
     return pstTarget;
 }
-
 
 //For Stride Scheduler
 static TCB* kStrideNextToRun(){
@@ -501,7 +503,11 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
     kUnlockForSystemData(bPreviousFlag);
     return TRUE;
     */
+<<<<<<< HEAD
     // BASIC
+=======
+    //BASIC
+>>>>>>> NEC
     if( pstTarget->stLink.qwID == qwTaskID )
     {
         SETPRIORITY( pstTarget->qwFlags, bPriority );
@@ -529,7 +535,7 @@ BOOL kChangePriority( QWORD qwTaskID, BYTE bPriority )
 
 void kSchedule( void )
 {
-    TCB* pstRunningTask, * pstNextTask;
+    TCB* pstRunningTask, * pstNextTask, *pstHeaderTask;
     BOOL bPreviousFlag;
     int i, j, iTaskCount;
     
@@ -546,7 +552,11 @@ void kSchedule( void )
     
     //Lottery
     /*
+<<<<<<< HEAD
      gs_qwRandomValue = ranf() % sum + 1;
+=======
+    gs_qwRandomValue = ranf() % sum + 1;
+>>>>>>> NEC
     iTaskCount = kGetReadyTaskCount();
     findT = 0;
     for(i = 0; i < iTaskCount; i++){

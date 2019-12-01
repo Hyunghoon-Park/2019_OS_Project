@@ -3,7 +3,11 @@
 SECTION .text     
 
 extern kCommonExceptionHandler, kCommonInterruptHandler, kKeyboardHandler, kPageFault
+<<<<<<< HEAD
 extern kTimerHandler, kHDDHandler
+=======
+extern kTimerHandler, kDeviceNotAvailableHandler, kHDDHandler
+>>>>>>> NEC
 
 global kISRDivideError, kISRDebug, kISRNMI, kISRBreakPoint, kISROverflow
 global kISRBoundRangeExceeded, kISRInvalidOpcode, kISRDeviceNotAvailable, kISRDoubleFault,

@@ -35,12 +35,23 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         {"settimer", "Set PIT Controller Counter0, ex)settimer 10(ms) 1(periodic)", 
                 kSetTimer },
         {"setpriority", "change priority ex) setpriority 1 1", kChangeTaskPriority},
+<<<<<<< HEAD
         {"dynamicmeminfo", "Show Dynamic Memory Information", kShowDynamicMemoryInformation},
         {"testseqalloc", "Test Sequential Allocation & Free", kTestSequentialAllocation},
         {"testranalloc", "Test Random Allocation & Free", kTestRandomAllocation},
         {"hddinfo", "Show HDD Information", kShowHDDInformation},
         {"readsector", "Read HDD Sector, ex)readsector 0(LBA) 10(count)", kReadSector},
         {"writesector", "Write HDD Sector, ex)readsector 0(LBA) 10(count)", kWriteSector},
+=======
+        {"dynamicmeminfo", "Show Dynamic Memory Information", kShowDyanmicMemoryInformation},
+        {"testseqalloc", "Test Sequential Allocation & Free", kTestSequentialAllocation},
+        {"testranalloc", "Test Random Allocation & Free", kTestRandomAllocation},
+        { "hddinfo", "Show HDD Information", kShowHDDInformation },
+        { "readsector", "Read HDD Sector, ex)readsector 0(LBA) 10(count)", 
+                kReadSector },
+        { "writesector", "Write HDD Sector, ex)writesector 0(LBA) 10(count)", 
+                kWriteSector },
+>>>>>>> NEC
         { "mounthdd", "Mount HDD", kMountHDD },
         { "formathdd", "Format HDD", kFormatHDD },
         { "filesysteminfo", "Show File System Information", kShowFileSystemInformation },
@@ -312,6 +323,7 @@ static void kHelp(const char *pcCommandBuffer)
 
     for (i = 0; i < iCount; i++)
     {
+<<<<<<< HEAD
         kPrintf( "%s", gs_vstCommandTable[ i ].pcCommand );
         kGetCursor( &iCursorX, &iCursorY );
         kSetCursor( iMaxCommandLength, iCursorY );
@@ -326,6 +338,22 @@ static void kHelp(const char *pcCommandBuffer)
                 break;
             }        
             kPrintf( "\n" );
+=======
+        kPrintf("%s", gs_vstCommandTable[i].pcCommand);
+        kGetCursor(&iCursorX, &iCursorY);
+        kSetCursor(iMaxCommandLength, iCursorY);
+        kPrintf("  - %s\n", gs_vstCommandTable[i].pcHelp);
+
+        if((i != 0) && ((i % 20) == 0))
+        {
+            kPrintf("Press any key to continue... ('q' is exit) : ");
+            if(kGetCh() == 'q')
+            {
+                kPrintf("\n");
+                break;
+            }
+            kPrintf("\n");
+>>>>>>> NEC
         }
     }
 }
@@ -585,6 +613,11 @@ static void kTestTask2( void )
         pstScreen[ iOffset ].bCharactor = vcData[ i % 4 ];
         pstScreen[ iOffset ].bAttribute = ( iOffset % 15 ) + 1;
         i++;
+<<<<<<< HEAD
+=======
+        
+        kSchedule();
+>>>>>>> NEC
     }
 }
 
@@ -616,16 +649,8 @@ static void kCreateTestTask( const char* pcParameterBuffer )
         
     //Set Timer 100ms , periodic 1 -> when do stride schedule
     case 2:
-        /*
-        kInitializePIT( MSTOCOUNT( 100 ), 1 );
-        kPrintf( "Time = %d ms, Periodic = %d Change Complete\n", 100, 1 );
-        for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
-        {    
-            if( kCreateTask( TASK_FLAGS_MEDIUM | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
-            {
-                break;
-            }
-        }*/
+        //kInitializePIT( MSTOCOUNT( 100 ), 1 );
+        //kPrintf( "Time = %d ms, Periodic = %d Change Complete\n", 100, 1 );
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOW | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
@@ -634,6 +659,14 @@ static void kCreateTestTask( const char* pcParameterBuffer )
             }
         }
         /*
+        for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
+        {    
+            if( kCreateTask( TASK_FLAGS_LOW | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
+            {
+                break;
+            }
+        }
+        
         for( i = 0 ; i < kAToI( vcCount, 10 ) ; i++ )
         {    
             if( kCreateTask( TASK_FLAGS_LOWEST | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kTestTask2 ) == NULL )
@@ -934,7 +967,60 @@ static void kShowMatrix( const char* pcParameterBuffer )
     }
 }
 
+<<<<<<< HEAD
 static void kShowDynamicMemoryInformation( const char* pcParameterBuffer )
+=======
+static void kFPUTestTask( void )
+{
+    double dValue1;
+    double dValue2;
+    TCB* pstRunningTask;
+    QWORD qwCount = 0;
+    QWORD qwRandomValue;
+    int i;
+    int iOffset;
+    char vcData[ 4 ] = { '-', '\\', '|', '/' };
+    CHARACTER* pstScreen = ( CHARACTER* ) CONSOLE_VIDEOMEMORYADDRESS;
+
+    pstRunningTask = kGetRunningTask();
+
+    iOffset = ( pstRunningTask->stLink.qwID & 0xFFFFFFFF ) * 2;
+    iOffset = CONSOLE_WIDTH * CONSOLE_HEIGHT - 
+        ( iOffset % ( CONSOLE_WIDTH * CONSOLE_HEIGHT ) );
+
+    while( 1 )
+    {
+        dValue1 = 1;
+        dValue2 = 1;
+        
+        for( i = 0 ; i < 10 ; i++ )
+        {
+            qwRandomValue = kRandom();
+            dValue1 *= ( double ) qwRandomValue;
+            dValue2 *= ( double ) qwRandomValue;
+
+            kSleep( 1 );
+            
+            qwRandomValue = kRandom();
+            dValue1 /= ( double ) qwRandomValue;
+            dValue2 /= ( double ) qwRandomValue;
+        }
+        
+        if( dValue1 != dValue2 )
+        {
+            kPrintf( "Value Is Not Same~!!! [%f] != [%f]\n", dValue1, dValue2 );
+            break;
+        }
+        qwCount++;
+
+        pstScreen[ iOffset ].bCharactor = vcData[ qwCount % 4 ];
+
+        pstScreen[ iOffset ].bAttribute = ( iOffset % 15 ) + 1;
+    }
+}
+
+static void kShowDyanmicMemoryInformation( const char* pcParameterBuffer )
+>>>>>>> NEC
 {
     QWORD qwStartAddress, qwTotalSize, qwMetaSize, qwUsedSize;
     
@@ -1072,13 +1158,20 @@ static void kTestRandomAllocation( const char* pcParameterBuffer )
         kCreateTask( TASK_FLAGS_LOWEST | TASK_FLAGS_THREAD, 0, 0, ( QWORD ) kRandomAllocationTask );
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> NEC
 static void kShowHDDInformation( const char* pcParameterBuffer )
 {
     HDDINFORMATION stHDD;
     char vcBuffer[ 100 ];
     
+<<<<<<< HEAD
     if( kGetHDDInformation(&stHDD) == FALSE )
+=======
+    if( kGetHDDInformation(&stHDD ) == FALSE )
+>>>>>>> NEC
     {
         kPrintf( "HDD Information Read Fail\n" );
         return ;
@@ -1112,7 +1205,10 @@ static void kReadSector( const char* pcParameterBuffer )
     int i, j;
     BYTE bData;
     BOOL bExit = FALSE;
+<<<<<<< HEAD
     
+=======
+>>>>>>> NEC
     kInitializeParameter( &stList, pcParameterBuffer );
     if( ( kGetNextParameter( &stList, vcLBA ) == 0 ) ||
         ( kGetNextParameter( &stList, vcSectorCount ) == 0 ) )
@@ -1169,14 +1265,22 @@ static void kReadSector( const char* pcParameterBuffer )
     kFreeMemory( pcBuffer );
 }
 
+<<<<<<< HEAD
 static void kWriteSector(const char* pcParameterBuffer)
+=======
+static void kWriteSector( const char* pcParameterBuffer )
+>>>>>>> NEC
 {
     PARAMETERLIST stList;
     char vcLBA[ 50 ], vcSectorCount[ 50 ];
     DWORD dwLBA;
     int iSectorCount;
     char* pcBuffer;
+<<<<<<< HEAD
     int i, j, temp = 0;
+=======
+    int i, j;
+>>>>>>> NEC
     BOOL bExit = FALSE;
     BYTE bData;
     static DWORD s_dwWriteCount = 0;
@@ -1288,13 +1392,21 @@ static void kCreateFileInRootDirectory( const char* pcParameterBuffer )
     char vcFileName[ 50 ];
     int iLength;
     DWORD dwCluster;
+<<<<<<< HEAD
+=======
+    DIRECTORYENTRY stEntry;
+>>>>>>> NEC
     int i;
     FILE* pstFile;
     
     kInitializeParameter( &stList, pcParameterBuffer );
     iLength = kGetNextParameter( &stList, vcFileName );
     vcFileName[ iLength ] = '\0';
+<<<<<<< HEAD
     if( ( iLength > ( FILESYSTEM_MAXFILENAMELENGTH - 1 ) ) || ( iLength == 0 ) )
+=======
+    if( ( iLength > ( sizeof( stEntry.vcFileName ) - 1 ) ) || ( iLength == 0 ) )
+>>>>>>> NEC
     {
         kPrintf( "Too Long or Too Short File Name\n" );
         return ;
@@ -1312,9 +1424,17 @@ static void kCreateFileInRootDirectory( const char* pcParameterBuffer )
 
 static void kDeleteFileInRootDirectory( const char* pcParameterBuffer )
 {
+<<<<<<< HEAD
      PARAMETERLIST stList;
     char vcFileName[ 50 ];
     int iLength;
+=======
+    PARAMETERLIST stList;
+    char vcFileName[ 50 ];
+    int iLength;
+    DIRECTORYENTRY stEntry;
+    int iOffset;
+>>>>>>> NEC
     
     kInitializeParameter( &stList, pcParameterBuffer );
     iLength = kGetNextParameter( &stList, vcFileName );
@@ -1344,7 +1464,11 @@ static void kShowRootDirectory( const char* pcParameterBuffer )
     DWORD dwTotalByte;
     DWORD dwUsedClusterCount;
     FILESYSTEMMANAGER stManager;
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> NEC
     kGetFileSystemInformation( &stManager );
      
     pstDirectory = opendir( "/" );
@@ -1412,7 +1536,11 @@ static void kShowRootDirectory( const char* pcParameterBuffer )
         }
         iCount++;
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> NEC
     kPrintf( "\t\tTotal File Count: %d\n", iTotalCount );
     kPrintf( "\t\tTotal File Size: %d KByte (%d Cluster)\n", dwTotalByte, 
              dwUsedClusterCount );
@@ -1578,7 +1706,10 @@ static void kTestFileIO( const char* pcParameterBuffer )
     {
         kPrintf( "[Fail]\n" );
     }
+<<<<<<< HEAD
     
+=======
+>>>>>>> NEC
     kPrintf( "3. Sequential Write Test(Cluster Size)..." );
     for( i = 0 ; i < 100 ; i++ )
     {
@@ -1595,7 +1726,10 @@ static void kTestFileIO( const char* pcParameterBuffer )
     {
         kPrintf( "[Pass]\n" );
     }
+<<<<<<< HEAD
     
+=======
+>>>>>>> NEC
     kPrintf( "4. Sequential Read And Verify Test(Cluster Size)..." );
     fseek( pstFile, -100 * FILESYSTEM_CLUSTERSIZE, SEEK_END );
     
@@ -1666,7 +1800,10 @@ static void kTestFileIO( const char* pcParameterBuffer )
 
         kPrintf( "    [%d] Offset [%d] Byte [%d]...", i, dwRandomOffset, 
                 dwByteCount );
+<<<<<<< HEAD
         
+=======
+>>>>>>> NEC
         fseek( pstFile, dwRandomOffset, SEEK_SET );
         
         if( fread( vbTempBuffer, 1, dwByteCount, pstFile ) != dwByteCount )
@@ -1706,7 +1843,11 @@ static void kTestFileIO( const char* pcParameterBuffer )
     }
 
     fseek( pstFile, -dwMaxFileSize, SEEK_SET );
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> NEC
     for( i = 0 ; i < ( dwMaxFileSize / 1024 )  ; i++ )
     {
         kPrintf( "    [%d] Offset [%d] Byte [%d] Read And Verify...", i, 
@@ -1728,7 +1869,10 @@ static void kTestFileIO( const char* pcParameterBuffer )
             kPrintf( "[Pass]\n" );
         }
     }
+<<<<<<< HEAD
         
+=======
+>>>>>>> NEC
     kPrintf( "8. File Delete Fail Test..." );
     if( remove( "testfileio.bin" ) != 0 )
     {
@@ -1738,7 +1882,11 @@ static void kTestFileIO( const char* pcParameterBuffer )
     {
         kPrintf( "[Fail]\n" );
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> NEC
     kPrintf( "9. File Close Test..." );
     if( fclose( pstFile ) == 0 )
     {
@@ -1758,7 +1906,12 @@ static void kTestFileIO( const char* pcParameterBuffer )
     {
         kPrintf( "[Fail]\n" );
     }
+<<<<<<< HEAD
     
     kFreeMemory( pbBuffer );    
 }
 
+=======
+    kFreeMemory( pbBuffer );    
+}
+>>>>>>> NEC

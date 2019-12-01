@@ -56,8 +56,21 @@ Disk.img: 00.BootLoader/BootLoader1.bin 00.BootLoader/BootLoader2.bin 01.Kernel3
 	@echo 
 
 run:
+<<<<<<< HEAD
 	qemu-system-x86_64 -L . -m 64 -fda Disk.img -hda HDD.img -boot a -localtime -M pc -rtc base=localtime
+=======
+	qemu-system-x86_64 -L . -fda Disk.img -hda HDD.img -boot a -m 64 -localtime -M pc -rtc base=localtime
+>>>>>>> NEC
 	
+	brctl addbr br0	
+	ip addr flush dev eth0
+	brctl addif br0 eth0
+	tunctl -t tap0 -u $(showami)
+	brctl addif br0 tap0
+	ifconfig eth0 up
+	ifconfig tap0 up
+	ifconfig br0 up
+
 clean:
 	make -C 00.BootLoader clean
 	make -C 01.Kernel32 clean
