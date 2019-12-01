@@ -4,8 +4,13 @@
 #include <stdarg.h>
 #include "Types.h"
 
+<<<<<<< HEAD
+#define MIN(x, y) ((( x ) < ( y )) ? (x) : (y))
+#define MIN(x, y) ((( x ) > ( y )) ? (x) : (y))
+=======
 #define MIN(x, y) (((x)<(y))?(x):(y))
 #define MAX(x, y) (((x)>(y))?(x):(y))
+>>>>>>> NEC
 
 void kMemSet( void* pvDestination, BYTE bData, int iSize );
 int kMemCpy( void* pvDestination, const void* pvSource, int iSize );

@@ -146,19 +146,30 @@ void kTimerHandler( int iVectorNumber )
         kScheduleInInterrupt();
     }
 }
+<<<<<<< HEAD
+
+=======
+>>>>>>> NEC
 void kHDDHandler( int iVectorNumber )
 {
     char vcBuffer[] = "[INT:  , ]";
     static int g_iHDDInterruptCount = 0;
     BYTE bTemp;
 
+<<<<<<< HEAD
+=======
     
+>>>>>>> NEC
     vcBuffer[ 5 ] = '0' + iVectorNumber / 10;
     vcBuffer[ 6 ] = '0' + iVectorNumber % 10;
     vcBuffer[ 8 ] = '0' + g_iHDDInterruptCount;
     g_iHDDInterruptCount = ( g_iHDDInterruptCount + 1 ) % 10;
     kPrintStringXY( 10, 0, vcBuffer );
+<<<<<<< HEAD
+
+=======
   
+>>>>>>> NEC
     if( iVectorNumber - PIC_IRQSTARTVECTOR == 14 )
     {
         kSetHDDInterruptFlag( TRUE, TRUE );
@@ -167,5 +178,9 @@ void kHDDHandler( int iVectorNumber )
     {
         kSetHDDInterruptFlag( FALSE, TRUE );
     }
+<<<<<<< HEAD
+    
+=======
+>>>>>>> NEC
     kSendEOIToPIC( iVectorNumber - PIC_IRQSTARTVECTOR );
 }

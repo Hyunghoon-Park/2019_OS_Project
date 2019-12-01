@@ -1,6 +1,10 @@
 [BITS 64]
 
+<<<<<<< HEAD
+global kInPortByte, kOutPortByte, kInPortWord, kOutPortWord 
+=======
 global kInPortByte, kOutPortByte, kInPortWord, kOutPortWord
+>>>>>>> NEC
 global kLoadGDTR, kLoadTR, kLoadIDTR
 global kEnableInterrupt, kDisableInterrupt, kReadRFLAGS
 global kReadTSC
@@ -10,6 +14,52 @@ SECTION .text
 
 kInPortByte:
     push rdx       
+<<<<<<< HEAD
+
+    mov rdx, rdi    
+    mov rax, 0      
+    in al, dx       
+    
+    pop rdx        
+    ret           
+
+kOutPortByte:
+    push rdx        
+    push rax       
+    
+    mov rdx, rdi    
+    mov rax, rsi    
+    out dx, al     
+    
+    pop rax         
+    pop rdx
+    ret  
+
+kInPortWord:
+    push rdx        
+                
+    
+    mov rdx, rdi    
+    mov rax, 0      
+    in ax, dx       
+                    
+    
+    pop rdx         
+    ret             
+
+kOutPortWord:
+    push rdx        
+    push rax        
+    
+    mov rdx, rdi    
+    mov rax, rsi    
+    out dx, ax      
+                    
+    
+    pop rax         
+    pop rdx
+    ret
+=======
     mov rdx, rdi    
     mov rax, 0      
     in al, dx       
@@ -48,6 +98,7 @@ kOutPortWord:
     pop rax     
     pop rdx
     ret             
+>>>>>>> NEC
 
 kLoadGDTR:
 	lgdt [rdi]
