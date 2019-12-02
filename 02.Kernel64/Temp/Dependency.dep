@@ -12,7 +12,7 @@ ConsoleShell.o: ../Source/ConsoleShell.c ../Source/ConsoleShell.h \
  ../Source/Utility.h ../Source/PIT.h ../Source/RTC.h \
  ../Source/AssemblyUtility.h ../Source/Task.h ../Source/List.h \
  ../Source/Synchronization.h ../Source/DynamicMemory.h \
- ../Source/HardDisk.h ../Source/FileSystem.h
+ ../Source/HardDisk.h ../Source/FileSystem.h ../Source/beep.h
 Synchronization.o: ../Source/Synchronization.c \
  ../Source/Synchronization.h ../Source/Types.h ../Source/Utility.h \
  ../Source/Task.h ../Source/List.h
@@ -38,6 +38,7 @@ PIC.o: ../Source/PIC.c ../Source/PIC.h ../Source/Types.h
 Keyboard.o: ../Source/Keyboard.c ../Source/Types.h \
  ../Source/AssemblyUtility.h ../Source/Task.h ../Source/List.h \
  ../Source/Keyboard.h ../Source/Queue.h ../Source/Synchronization.h
+beep.o: ../Source/beep.c ../Source/beep.h
 RTC.o: ../Source/RTC.c ../Source/RTC.h ../Source/Types.h
 HardDisk.o: ../Source/HardDisk.c ../Source/HardDisk.h ../Source/Types.h \
  ../Source/Synchronization.h
