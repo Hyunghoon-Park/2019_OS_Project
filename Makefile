@@ -56,16 +56,17 @@ Disk.img: 00.BootLoader/BootLoader1.bin 00.BootLoader/BootLoader2.bin 01.Kernel3
 	@echo 
 
 run:
-	qemu-system-x86_64 -L . -fda Disk.img -hda HDD.img -boot a -m 64 -localtime -M pc -rtc base=localtime
-	
-	brctl addbr br0	
-	ip addr flush dev eth0
+	qemu-system-x86_64 -L . -fda Disk.img -hda HDD.img -boot a -netdev tap,id=network0,ifname=tap0,script=no,downscript=no -device e1000,netdev=network0,mac=52:53:54:55:56:56 -m 64 -localtime -M pc -rtc base=localtime -soundhw pcspk
+
+	brclt addbr br0
+	ipaddr flush dev eth0
 	brctl addif br0 eth0
-	tunctl -t tap0 -u $(showami)
+	tunctl -t tap0 -u $(whoami)
 	brctl addif br0 tap0
 	ifconfig eth0 up
 	ifconfig tap0 up
 	ifconfig br0 up
+
 
 clean:
 	make -C 00.BootLoader clean

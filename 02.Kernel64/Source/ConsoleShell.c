@@ -10,6 +10,7 @@
 #include "DynamicMemory.h"
 #include "HardDisk.h"
 #include "FileSystem.h"
+#include "beep.h"
 
 SHELLCOMMANDENTRY gs_vstCommandTable[] =
     {
@@ -52,6 +53,7 @@ SHELLCOMMANDENTRY gs_vstCommandTable[] =
         { "writefile", "Write Data To File, ex) writefile a.txt", kWriteDataToFile },
         { "readfile", "Read Data From File, ex) readfile a.txt", kReadDataFromFile },
         { "testfileio", "Test File I/O Function", kTestFileIO },
+        { "dropthebeep", "Drop The Beep", kBeep},
 };
 
 void kStartConsoleShell(void)
@@ -1809,4 +1811,9 @@ static void kTestFileIO( const char* pcParameterBuffer )
         kPrintf( "[Fail]\n" );
     }
     kFreeMemory( pbBuffer );    
+}
+
+static void kBeep()
+{
+    make_beep();
 }
